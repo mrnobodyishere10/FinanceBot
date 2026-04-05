@@ -1,0 +1,30 @@
+name: Run Internal AI Bot
+
+on:
+  push:
+    branches: [ main ] # Bot berjalan setiap kali Anda push ke branch main
+  workflow_dispatch: # Memungkinkan Anda menjalankan bot secara manual dari tab Actions
+
+jobs:
+  execute-ai:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run AI Script
+        env:
+          # MENGHUBUNGKAN SECRET ANDA KE SKRIP JS
+          # Kita ambil dari Secret 'GITHU8_TOKEN' dan namai variabelnya 'GITHUB_TOKEN'
+          GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
+        run: node sample.js
+        
