@@ -1,3 +1,4 @@
+require('dotenv').config();
 import OpenAI from "openai";
 
 const token = process.env["GITHU8_TOKEN"];
@@ -14,6 +15,7 @@ export async function main() {
         { role:"user", content: "What is the capital of France?" }
       ],
       temperature: 0.8,
+      max_tokens:2048,
       top_p: 1.0,
       model: model
     });
