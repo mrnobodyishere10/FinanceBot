@@ -1,2 +1,1 @@
-// webhookController controller
 module.exports = {};

@@ -1,2 +1,1 @@
-// insight module
 module.exports = {};

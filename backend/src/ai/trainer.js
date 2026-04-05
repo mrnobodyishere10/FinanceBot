@@ -1,2 +1,1 @@
-// trainer module
 module.exports = {};

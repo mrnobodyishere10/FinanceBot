@@ -1,2 +1,1 @@
-// leaderboardService service
 module.exports = {};

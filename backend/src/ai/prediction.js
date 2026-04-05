@@ -1,2 +1,1 @@
-// prediction module
 module.exports = {};

@@ -1,2 +1,1 @@
-// alertService service
 module.exports = {};

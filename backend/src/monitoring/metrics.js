@@ -1,2 +1,1 @@
-// metrics monitoring
 module.exports = {};

@@ -1,2 +1,1 @@
-// forecast module
 module.exports = {};

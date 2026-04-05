@@ -1,2 +1,1 @@
-// paymentController controller
 module.exports = {};

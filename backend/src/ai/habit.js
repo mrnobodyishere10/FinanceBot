@@ -1,2 +1,1 @@
-// habit module
 module.exports = {};

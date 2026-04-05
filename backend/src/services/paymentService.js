@@ -1,2 +1,1 @@
-// paymentService service
 module.exports = {};

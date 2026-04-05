@@ -1,6 +1,4 @@
 const express = require("express");
 const router = express.Router();
-
-// Define admin routes here
-
+router.get("/", (req, res) => res.json({ message: "admin route working" }));
 module.exports = router;

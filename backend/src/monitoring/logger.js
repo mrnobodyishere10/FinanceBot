@@ -1,2 +1,1 @@
-// logger monitoring
 module.exports = {};

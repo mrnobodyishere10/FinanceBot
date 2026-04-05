@@ -1,2 +1,1 @@
-// sentry monitoring
 module.exports = {};

@@ -1,2 +1,1 @@
-// geminiClient module
 module.exports = {};

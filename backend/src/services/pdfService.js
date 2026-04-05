@@ -1,2 +1,1 @@
-// pdfService service
 module.exports = {};

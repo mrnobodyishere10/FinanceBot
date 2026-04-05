@@ -1,2 +1,1 @@
-// validator util
 module.exports = {};

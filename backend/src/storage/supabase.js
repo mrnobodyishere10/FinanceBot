@@ -1,2 +1,1 @@
-// supabase storage
 module.exports = {};

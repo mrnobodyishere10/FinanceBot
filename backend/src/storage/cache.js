@@ -1,2 +1,1 @@
-// cache storage
 module.exports = {};

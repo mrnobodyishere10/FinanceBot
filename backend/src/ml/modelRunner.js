@@ -1,2 +1,1 @@
-// modelRunner module
 module.exports = {};

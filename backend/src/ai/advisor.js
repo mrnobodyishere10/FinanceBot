@@ -1,2 +1,1 @@
-// advisor module
 module.exports = {};

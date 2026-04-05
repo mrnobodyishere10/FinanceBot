@@ -1,2 +1,1 @@
-// memoryStore storage
 module.exports = {};

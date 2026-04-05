@@ -1,6 +1,4 @@
 const express = require("express");
 const router = express.Router();
-
-// Define api routes here
-
+router.get("/", (req, res) => res.json({ message: "api route working" }));
 module.exports = router;

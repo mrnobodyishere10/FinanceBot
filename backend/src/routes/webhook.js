@@ -1,6 +1,4 @@
 const express = require("express");
 const router = express.Router();
-
-// Define webhook routes here
-
+router.get("/", (req, res) => res.json({ message: "webhook route working" }));
 module.exports = router;

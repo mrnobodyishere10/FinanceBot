@@ -1,2 +1,1 @@
-// formatter util
 module.exports = {};

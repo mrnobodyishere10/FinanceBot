@@ -1,2 +1,1 @@
-// fileStorage storage
 module.exports = {};

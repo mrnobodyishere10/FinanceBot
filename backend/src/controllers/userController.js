@@ -1,2 +1,1 @@
-// userController controller
 module.exports = {};

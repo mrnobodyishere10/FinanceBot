@@ -1,2 +1,1 @@
-// adminController controller
 module.exports = {};

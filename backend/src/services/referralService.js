@@ -1,2 +1,1 @@
-// referralService service
 module.exports = {};

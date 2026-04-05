@@ -1,2 +1,1 @@
-// memory module
 module.exports = {};

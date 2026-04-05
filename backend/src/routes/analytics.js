@@ -1,6 +1,4 @@
 const express = require("express");
 const router = express.Router();
-
-// Define analytics routes here
-
+router.get("/", (req, res) => res.json({ message: "analytics route working" }));
 module.exports = router;

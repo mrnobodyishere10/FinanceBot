@@ -1,2 +1,1 @@
-// transactionService service
 module.exports = {};
