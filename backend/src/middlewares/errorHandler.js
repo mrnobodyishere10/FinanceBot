@@ -1,1 +1,2 @@
-module.exports = (req, res, next) => next();
+console.log("errorHandler middleware loaded");
+module.exports = {};

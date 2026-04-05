@@ -1,0 +1,4 @@
+{
+    "name": "FinanceBot",
+    "deploy": "docker"
+}

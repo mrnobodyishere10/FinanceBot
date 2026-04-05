@@ -1,4 +1,2 @@
-const express = require("express");
-const router = express.Router();
-router.get("/", (req, res) => res.json({ message: "admin route working" }));
-module.exports = router;
+console.log("admin route loaded");
+module.exports = {};

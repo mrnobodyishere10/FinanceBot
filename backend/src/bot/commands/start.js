@@ -1,3 +1,4 @@
-module.exports = (ctx) => {
-  ctx.reply("start command executed");
+// start.js
+module.exports = async (ctx) => {
+    ctx.reply("Welcome to FinanceBot! Use /help to see commands.");
 };

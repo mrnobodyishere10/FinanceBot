@@ -1,8 +1,12 @@
-require("dotenv").config();
-const http = require("http");
-const app = require("./app");
+// server.js
+const app = require('./app');
+const { PORT } = require('./config/env');
+const bot = require('./bot/telegram');
+const logger = require('./monitoring/logger');
 
-const PORT = process.env.PORT || 3000;
-const server = http.createServer(app);
+// Initialize Telegram bot
+bot.init();
 
-server.listen(PORT, () => console.log("FinanceBot server running on port " + PORT));
+// Log server start
+logger.info(`FinanceBot Telegram bot initialized and server listening on port ${PORT}`);
+

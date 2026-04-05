@@ -1,1 +1,4 @@
-module.exports = (ctx) => console.log("message handler executed");
+async function messageHandler(ctx){
+    console.log(`Incoming message: ${ctx.message.text}`);
+}
+module.exports = { messageHandler };

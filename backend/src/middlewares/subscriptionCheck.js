@@ -1,1 +1,2 @@
-module.exports = (req, res, next) => next();
+console.log("subscriptionCheck middleware loaded");
+module.exports = {};
