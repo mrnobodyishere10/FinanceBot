@@ -1,2 +1,2 @@
-// Placeholder for date.js
+// date util
 module.exports = {};

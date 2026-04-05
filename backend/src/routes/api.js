@@ -1,7 +1,6 @@
-// Placeholder for api.js
 const express = require("express");
 const router = express.Router();
 
-// Define endpoints here
+// Define api routes here
 
 module.exports = router;

@@ -1,2 +1,2 @@
-// Placeholder for worker.js
+// worker queue/job
 module.exports = {};

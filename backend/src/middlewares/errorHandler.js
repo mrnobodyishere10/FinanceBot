@@ -1,2 +1,2 @@
-// Placeholder for errorHandler.js
+// errorHandler middleware
 module.exports = (req, res, next) => { next(); };

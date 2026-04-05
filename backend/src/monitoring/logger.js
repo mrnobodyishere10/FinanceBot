@@ -1,2 +1,2 @@
-// Placeholder for logger.js
+// logger monitoring
 module.exports = {};

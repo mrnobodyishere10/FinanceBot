@@ -1,2 +1,2 @@
-// Placeholder for queue.js
+// queue queue/job
 module.exports = {};

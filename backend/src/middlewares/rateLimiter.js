@@ -1,2 +1,2 @@
-// Placeholder for rateLimiter.js
+// rateLimiter middleware
 module.exports = (req, res, next) => { next(); };

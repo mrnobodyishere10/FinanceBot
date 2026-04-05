@@ -1,2 +1,2 @@
-// Placeholder for fileStorage.js
+// fileStorage storage
 module.exports = {};

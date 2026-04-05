@@ -1,2 +1,2 @@
-// Placeholder for memory.js
+// memory module
 module.exports = {};

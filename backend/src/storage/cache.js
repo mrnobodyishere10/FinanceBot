@@ -1,2 +1,2 @@
-// Placeholder for cache.js
+// cache storage
 module.exports = {};

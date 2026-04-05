@@ -1,2 +1,2 @@
-// Placeholder for memoryStore.js
+// memoryStore storage
 module.exports = {};

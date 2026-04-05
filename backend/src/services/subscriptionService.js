@@ -1,2 +1,2 @@
-// Placeholder for subscriptionService.js
+// subscriptionService service
 module.exports = {};

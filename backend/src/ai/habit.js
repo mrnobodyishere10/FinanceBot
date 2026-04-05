@@ -1,2 +1,2 @@
-// Placeholder for habit.js
+// habit module
 module.exports = {};

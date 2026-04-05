@@ -1,2 +1,2 @@
-// Placeholder for jobs/aiJob.js
+// jobs/aiJob queue/job
 module.exports = {};

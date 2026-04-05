@@ -1,2 +1,2 @@
-// Placeholder for predictionEngine.js
+// predictionEngine AI engine
 module.exports = {};

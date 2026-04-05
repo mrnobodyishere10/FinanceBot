@@ -1,7 +1,6 @@
-// Placeholder for dashboard.js
 const express = require("express");
 const router = express.Router();
 
-// Define endpoints here
+// Define dashboard routes here
 
 module.exports = router;

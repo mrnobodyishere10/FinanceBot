@@ -1,2 +1,2 @@
-// Placeholder for insightEngine.js
+// insightEngine AI engine
 module.exports = {};

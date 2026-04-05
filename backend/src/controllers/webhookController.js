@@ -1,2 +1,2 @@
-// Placeholder for webhookController.js
+// webhookController controller
 module.exports = {};

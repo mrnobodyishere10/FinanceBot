@@ -1,2 +1,2 @@
-// Placeholder for forecast.js
+// forecast module
 module.exports = {};

@@ -1,2 +1,2 @@
-// Placeholder for sentry.js
+// sentry monitoring
 module.exports = {};

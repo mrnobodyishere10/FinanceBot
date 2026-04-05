@@ -1,2 +1,2 @@
-// Placeholder for jobs/cleanupJob.js
+// jobs/cleanupJob queue/job
 module.exports = {};

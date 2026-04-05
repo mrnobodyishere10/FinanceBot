@@ -1,2 +1,2 @@
-// Placeholder for alertService.js
+// alertService service
 module.exports = {};

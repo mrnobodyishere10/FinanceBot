@@ -1,2 +1,2 @@
-// Placeholder for userService.js
+// userService service
 module.exports = {};

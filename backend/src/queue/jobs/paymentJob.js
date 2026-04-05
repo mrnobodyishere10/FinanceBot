@@ -1,2 +1,2 @@
-// Placeholder for jobs/paymentJob.js
+// jobs/paymentJob queue/job
 module.exports = {};

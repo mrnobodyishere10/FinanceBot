@@ -1,2 +1,2 @@
-// Placeholder for subscriptionCheck.js
+// subscriptionCheck middleware
 module.exports = (req, res, next) => { next(); };

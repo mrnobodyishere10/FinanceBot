@@ -1,2 +1,2 @@
-// Placeholder for adminController.js
+// adminController controller
 module.exports = {};

@@ -1,2 +1,2 @@
-// Placeholder for auth.js
+// auth middleware
 module.exports = (req, res, next) => { next(); };

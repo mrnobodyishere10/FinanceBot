@@ -1,2 +1,2 @@
-// Placeholder for modelRunner.js
+// modelRunner module
 module.exports = {};

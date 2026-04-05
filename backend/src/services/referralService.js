@@ -1,2 +1,2 @@
-// Placeholder for referralService.js
+// referralService service
 module.exports = {};

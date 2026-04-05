@@ -1,2 +1,2 @@
-// Placeholder for retry.js
+// retry util
 module.exports = {};

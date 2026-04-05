@@ -1,2 +1,2 @@
-// Placeholder for pdfService.js
+// pdfService service
 module.exports = {};

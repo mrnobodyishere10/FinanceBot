@@ -1,2 +1,2 @@
-// Placeholder for reportService.js
+// reportService service
 module.exports = {};

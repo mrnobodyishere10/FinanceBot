@@ -1,2 +1,2 @@
-// Placeholder for userController.js
+// userController controller
 module.exports = {};

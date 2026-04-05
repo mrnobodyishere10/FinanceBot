@@ -1,2 +1,2 @@
-// Placeholder for prediction.js
+// prediction module
 module.exports = {};

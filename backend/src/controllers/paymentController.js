@@ -1,2 +1,2 @@
-// Placeholder for paymentController.js
+// paymentController controller
 module.exports = {};

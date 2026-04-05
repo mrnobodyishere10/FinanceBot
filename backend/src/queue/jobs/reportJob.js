@@ -1,2 +1,2 @@
-// Placeholder for jobs/reportJob.js
+// jobs/reportJob queue/job
 module.exports = {};

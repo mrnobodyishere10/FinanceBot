@@ -1,2 +1,2 @@
-// Placeholder for advisor.js
+// advisor module
 module.exports = {};

@@ -1,2 +1,2 @@
-// Placeholder for budgetEngine.js
+// budgetEngine AI engine
 module.exports = {};

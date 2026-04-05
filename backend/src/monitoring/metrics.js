@@ -1,2 +1,2 @@
-// Placeholder for metrics.js
+// metrics monitoring
 module.exports = {};

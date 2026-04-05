@@ -1,2 +1,2 @@
-// Placeholder for geminiClient.js
+// geminiClient module
 module.exports = {};

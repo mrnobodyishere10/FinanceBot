@@ -1,2 +1,2 @@
-// Placeholder for adminCheck.js
+// adminCheck middleware
 module.exports = (req, res, next) => { next(); };

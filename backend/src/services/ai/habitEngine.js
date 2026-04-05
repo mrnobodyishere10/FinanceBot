@@ -1,2 +1,2 @@
-// Placeholder for habitEngine.js
+// habitEngine AI engine
 module.exports = {};

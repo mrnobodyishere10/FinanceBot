@@ -1,2 +1,2 @@
-// Placeholder for budget.js
+// budget module
 module.exports = {};

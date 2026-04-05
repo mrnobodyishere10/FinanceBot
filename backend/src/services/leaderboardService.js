@@ -1,2 +1,2 @@
-// Placeholder for leaderboardService.js
+// leaderboardService service
 module.exports = {};

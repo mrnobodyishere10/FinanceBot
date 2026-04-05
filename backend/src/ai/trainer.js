@@ -1,2 +1,2 @@
-// Placeholder for trainer.js
+// trainer module
 module.exports = {};

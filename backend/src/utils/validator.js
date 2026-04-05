@@ -1,2 +1,2 @@
-// Placeholder for validator.js
+// validator util
 module.exports = {};

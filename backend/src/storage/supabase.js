@@ -1,2 +1,2 @@
-// Placeholder for supabase.js
+// supabase storage
 module.exports = {};

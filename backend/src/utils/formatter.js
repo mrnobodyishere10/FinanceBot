@@ -1,2 +1,2 @@
-// Placeholder for formatter.js
+// formatter util
 module.exports = {};

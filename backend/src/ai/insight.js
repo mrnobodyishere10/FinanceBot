@@ -1,2 +1,2 @@
-// Placeholder for insight.js
+// insight module
 module.exports = {};
