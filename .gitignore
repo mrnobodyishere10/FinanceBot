@@ -4,3 +4,5 @@ node_modules/
 *.log
 build/
 FinanceBot_full_backend_setup.sh
+OpenAI.prompt.yml
+backend/package.json
