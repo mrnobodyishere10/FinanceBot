@@ -1,0 +1,7 @@
+// Placeholder for webhook.js
+const express = require("express");
+const router = express.Router();
+
+// Define endpoints here
+
+module.exports = router;
