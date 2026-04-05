@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-const token = process.env["GITHUB_TOKEN"];
+const token = process.env["GITHU8_TOKEN"];
 const endpoint = "https://models.github.ai/inference";
 const model = "openai/gpt-4.1";
 
