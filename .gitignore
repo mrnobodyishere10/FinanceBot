@@ -6,3 +6,4 @@ build/
 FinanceBot_full_backend_setup.sh
 OpenAI.prompt.yml
 backend/package.json
+backend/package-lock.json
