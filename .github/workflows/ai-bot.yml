@@ -1,23 +1,20 @@
-name: AI Interactive Assistant
+name: AI Autonomous Repo Manager
 
 on:
   issues:
-    # Bot akan berjalan otomatis saat ada Issue baru dibuka
     types: [opened]
-  # Menambahkan pemicu manual agar Anda bisa tes dari tab Actions jika perlu
   workflow_dispatch:
 
 jobs:
-  respond:
+  analyze-and-respond:
     runs-on: ubuntu-latest
     
-    # Memberikan izin agar bot bisa menulis komentar dan memodifikasi Issue
     permissions:
       issues: write
       contents: read
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -26,17 +23,15 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        # Menginstal openai dan @octokit/rest berdasarkan package.json
-        run: npm install
+        run: npm install openai @octokit/rest
 
-      - name: Run Combined AI Bot
+      - name: Execute AI Logic
         env:
-          # Menggunakan Secret kustom Anda untuk akses GitHub Models & API
+          # Menggunakan Secret kustom Anda
           GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
           
-          # Variabel context untuk identifikasi lokasi dan isi Issue
+          # Konteks dinamis dari GitHub Event
           GITHUB_REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: node sample.js
-
