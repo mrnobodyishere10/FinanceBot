@@ -1,28 +1,20 @@
 ```markdown
 # FinanceBot
 
-FinanceBot is a comprehensive solution for managing financial tasks using AI. 
+## Deskripsi
+FinanceBot adalah bot yang dirancang untuk membantu pengguna dalam mengelola keuangan mereka dengan menggunakan teknologi AI.
 
-## Features
-- Automated financial reporting
-- Budget tracking
-- Expense management
+## Instalasi
+1. Clone repositori ini.
+2. Jalankan `npm install` untuk menginstal dependensi.
+3. Konfigurasikan file `.env` sesuai dengan kebutuhan Anda.
 
-## Installation
-1. Clone the repository
-2. Run `npm install` to install dependencies
-3. Configure your environment variables in `.env`
+## Penggunaan
+Jelaskan cara menggunakan FinanceBot di sini.
 
-## Usage
-Run the application using `node index.js` or use the provided scripts for deployment.
+## Kontribusi
+Silakan ajukan pull request untuk kontribusi.
 
-## Contributing
-Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-```plaintext
-# Preserved existing content
-# No changes made to the functional code, only enhancements to documentation and structure.
+## Lisensi
+MIT License
 ```
