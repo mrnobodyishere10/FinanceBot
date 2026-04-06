@@ -1,4 +1,3 @@
-// admin.js
 const adminService = require('../../services/adminService');
 
 module.exports = async (ctx, command) => {
