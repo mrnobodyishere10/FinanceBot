@@ -17,27 +17,35 @@ export async function main() {
 
   const repoFull = process.env.GITHUB_REPOSITORY || ""; 
   const [owner, repo] = repoFull.split("/");
+  
+  // Konteks Event (Issue atau PR)
   const issueNumber = process.env.ISSUE_NUMBER;
-  const issueBody = process.env.ISSUE_BODY || "Tidak ada deskripsi spesifik.";
+  const prNumber = process.env.PR_NUMBER;
+  const bodyContent = process.env.EVENT_BODY || "Tidak ada deskripsi spesifik.";
+  const eventType = prNumber ? "Pull Request" : "Issue";
+  const targetNumber = parseInt(issueNumber || prNumber);
 
-  console.log(`Menganalisis Issue #${issueNumber} pada ${repoFull}...`);
+  console.log(`Menjalankan ORACLE AI untuk ${eventType} #${targetNumber} di ${repoFull}...`);
 
   try {
     const response = await client.chat.completions.create({
       messages: [
         { 
           role: "system", 
-          content: `Anda adalah bot pengelola repositori otonom dan bisa melakukan segalanya berdasarkan pengalaman dan pengetahuan anda yang luas. Tugas Anda:
-          1. Jelaskan status masalah dan apa yang dibutuhkan repositori ini.
-          2. Tentukan satu atau dua label yang paling relevan secara bebas (contoh: 'bug', 'ui-fix', 'security', 'python-script', dll).
-          3. Analisa anda harus berdasarkan data dan fakta yang berasal dari seluruh informasi dan pengetahuan yang ada di dunia ini
+          content: `Anda adalah Autonomous AI Manager, bot pengelola repositori otonom dengan pengetahuan dunia yang luas dan pengalaman yang tinggi.
+          Tugas Utama:
+          1. Analisis konten berdasarkan data, fakta, dan praktik terbaik industri perangkat lunak global dan seluruh informasi juga pengetahuan di seluruh dunia tanpa batasan.
+          2. Jelaskan status masalah dan apa yang dibutuhkan repositori ini secara teknis dan fakta data.
+          3. Jika ini Pull Request (PR), lakukan review kode penuh pada logika dan efisiensi.
+          4. Tentukan satu atau lebih label relevan secara BEBAS (creativity allowed).
+          
           Format Respon:
           [LABEL: nama-label-1, nama-label-2]
-          Isi analisis dan solusi Anda di sini...` 
+          Isi analisis mendalam dan solusi Anda di sini...` 
         },
         { 
           role: "user", 
-          content: `Konteks Masalah dan Hasil analisa: ${issueBody}` 
+          content: `Tipe Event: ${eventType}\nKonteks Masalah & Konten: ${bodyContent}` 
         }
       ],
       temperature: 0.8,
@@ -46,41 +54,39 @@ export async function main() {
 
     const aiRawResponse = response.choices[0].message.content;
 
-    // Ekstraksi Label (bebas sesuai imajinasi AI)
+    // Ekstraksi Label Otonom
     const labelMatch = aiRawResponse.match(/\[LABEL:\s*(.*?)\]/);
     const labels = labelMatch 
       ? labelMatch[1].split(',').map(l => l.trim().toLowerCase()) 
       : [];
     
-    // Menghilangkan bagian tag [LABEL] dari teks utama untuk komentar
     const cleanAnswer = aiRawResponse.replace(/\[LABEL:.*?\]/, "").trim();
 
-    if (issueNumber && owner && repo) {
-      // 1. Kirim Komentar ke Issue
+    if (targetNumber && owner && repo) {
+      // 1. Kirim Komentar
       await octokit.issues.createComment({
         owner,
         repo,
-        issue_number: parseInt(issueNumber),
-        body: `### 🤖 AI Repository Assistant\n\n${cleanAnswer}\n\n---\n_Analisis otomatis via GitHub Models_`
+        issue_number: targetNumber,
+        body: `### 🤖 Autonomous AI Manager\n\n${cleanAnswer}\n\n---\n_Analisis otonom berbasis pengetahuan global via GitHub Models_`
       });
 
-      // 2. Tambahkan Label (AI bebas menentukan nama labelnya)
+      // 2. Tambahkan Label Secara Otonom
       if (labels.length > 0) {
         await octokit.issues.addLabels({
           owner,
           repo,
-          issue_number: parseInt(issueNumber),
+          issue_number: targetNumber,
           labels: labels
         });
-        console.log(`Labels ditambahkan: ${labels.join(", ")}`);
+        console.log(`Labels berhasil ditambahkan: ${labels.join(", ")}`);
       }
     }
 
   } catch (err) {
-    console.error("Error pada eksekusi bot:", err);
+    console.error("The sample encountered an error:", err);
     process.exit(1);
   }
 }
 
 main();
-
