@@ -1,24 +1,31 @@
-name: AI Autonomous Manager
+name: Autonomous AI Manager
 
 on:
-  issues:
-    types: [opened]
+  push:
+    branches: [main]
   pull_request:
+    types: [opened, synchronize]
+  issues:
     types: [opened]
   workflow_dispatch:
 
 jobs:
-  automation:
+  core-engine:
     runs-on: ubuntu-latest
-    
     permissions:
+      contents: write
       issues: write
       pull-requests: write
-      contents: read
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR Diff
+        if: github.event_name == 'pull_request'
+        run: git diff origin/${{ github.base_ref }} HEAD > pr.diff
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,14 +33,20 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        # Menginstal pustaka yang dibutuhkan
-        run: npm install openai @octokit/rest
+        run: npm install openai @octokit/rest axios
 
-      - name: Run AI Manager
+      - name: Execute Autonomous AI
         env:
-          # Secret kustom Anda
           GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_BODY: ${{ github.event.issue.body || github.event.head_commit.message }}
+        run: |
+          if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
+          node sample.js
           
           # Logika pemisahan context ID
           ISSUE_NUMBER: ${{ github.event.issue.number }}
