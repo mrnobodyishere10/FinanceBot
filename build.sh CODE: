@@ -1,7 +1,12 @@
 ```bash
 #!/bin/bash
-echo "Building the project..."
+# Skrip untuk membangun proyek FinanceBot
+
+# Memastikan bahwa semua dependensi terinstal
 npm install
+
+# Membangun proyek
 npm run build
-echo "Build completed."
+
+echo "Build selesai!"
 ```
