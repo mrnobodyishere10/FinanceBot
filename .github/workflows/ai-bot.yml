@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Oracle Engine
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Perbaikan dari GITHU8_TOKEN
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GITHUB_REPOSITORY: ${{ github.repository }}
