@@ -1,2 +1,13 @@
-# Updated README to reflect the new structure and usage instructions.
-# Ensure that all sections are clear and provide necessary information for users.
+```
+# FinanceBot
+
+## Overview
+FinanceBot is a bot designed to assist with financial tasks.
+
+## Setup
+1. Copy `.env.example` to `.env` and fill in your credentials.
+2. Run the setup script: `bash FinanceBot_full_backend_setup.sh`.
+
+## Documentation
+For more detailed documentation, please refer to the `/docs` directory.
+```
