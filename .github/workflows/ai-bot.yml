@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       command:
-        description: 'Perintah Manual untuk AI'
+        description: 'Perintah Manual untuk Oracle'
         required: false
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # WAJIB: Agar AI bisa memetakan seluruh sub-folder
 
       - name: Fetch PR Diff
         if: github.event_name == 'pull_request'
@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run Engine
+      - name: Run Oracle Engine
         env:
           GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -50,6 +50,6 @@ jobs:
           MANUAL_COMMAND: ${{ github.event.inputs.command }}
         run: |
           npm install openai @octokit/rest axios
+          # Memasukkan PR Diff ke variabel lingkungan jika ada
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
-          
