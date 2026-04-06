@@ -1,4 +1,3 @@
-// subscription.js
 const subscriptionService = require('../../services/subscriptionService');
 
 module.exports = async (ctx) => {
