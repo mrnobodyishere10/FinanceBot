@@ -1,4 +1,3 @@
-// payment.js
 const paymentService = require('../../services/paymentService');
 
 module.exports = async (ctx, paymentData) => {
