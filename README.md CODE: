@@ -1,63 +1,21 @@
 ```markdown
 # FinanceBot
 
-FinanceBot is a comprehensive solution for managing financial transactions and providing insights using AI.
+FinanceBot is an advanced financial management bot that helps users manage their finances effectively.
 
-## Setup Instructions
+## Features
+- Budget tracking
+- Expense categorization
+- Financial insights
 
-1. Clone the repository.
-2. Install dependencies using `npm install`.
-3. Set up your environment variables in the `.env` file.
-4. Run the backend setup script: `bash FinanceBot_full_backend_setup.sh`.
+## Setup
+1. Clone the repository
+2. Install dependencies using `npm install`
+3. Create a `.env` file with the necessary environment variables
 
-## Directory Structure
-
-- **backend/**: Contains the server-side code.
-- **mobile/**: Contains the mobile application code.
-- **web/**: Contains the web application code.
-- **shared/**: Contains shared resources and utilities.
-- **docs/**: Documentation files.
-- **scripts/**: Contains various utility scripts.
+## Usage
+Run the bot using `node index.js`
 
 ## Contribution
-
-Please follow the guidelines in the `CONTRIBUTING.md` file for contributing to this project.
-
-## License
-
-This project is licensed under the MIT License.
-```
-```bash
-# FinanceBot_full_backend_setup.sh
-
-#!/bin/bash
-
-# This script sets up the backend environment for FinanceBot.
-
-# Load environment variables
-source .env
-
-# Install necessary packages
-npm install
-
-# Start the server
-npm start
-```
-```javascript
-// sample.js
-
-// Sample code demonstrating how to use the FinanceBot API
-
-const axios = require('axios');
-
-async function getTransactionData() {
-    try {
-        const response = await axios.get('https://api.financebot.com/transactions');
-        console.log(response.data);
-    } catch (error) {
-        console.error('Error fetching transaction data:', error);
-    }
-}
-
-getTransactionData();
+Feel free to submit a pull request or open an issue for any improvements.
 ```
