@@ -1,16 +1,19 @@
-name: AI Autonomous Repo Manager
+name: AI Autonomous Manager
 
 on:
   issues:
     types: [opened]
+  pull_request:
+    types: [opened]
   workflow_dispatch:
 
 jobs:
-  analyze-and-respond:
+  automation:
     runs-on: ubuntu-latest
     
     permissions:
       issues: write
+      pull-requests: write
       contents: read
 
     steps:
@@ -23,15 +26,19 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
+        # Menginstal pustaka yang dibutuhkan
         run: npm install openai @octokit/rest
 
-      - name: Execute AI Logic
+      - name: Run AI Manager
         env:
-          # Menggunakan Secret kustom Anda
+          # Secret kustom Anda
           GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
-          
-          # Konteks dinamis dari GitHub Event
           GITHUB_REPOSITORY: ${{ github.repository }}
+          
+          # Logika pemisahan context ID
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          
+          # Mengambil konten body dari event manapun yang terjadi
+          EVENT_BODY: ${{ github.event.issue.body || github.event.pull_request.body }}
         run: node sample.js
