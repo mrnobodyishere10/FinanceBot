@@ -26,8 +26,9 @@ export async function main() {
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   const repoFull = process.env.GITHUB_REPOSITORY || "";
   const [owner, repo] = repoFull.split("/");
-  const eventName = process.env.GITHUB_EVENT_NAME;
   
+  const eventName = process.env.GITHUB_EVENT_NAME;
+  const manualCommand = process.env.MANUAL_COMMAND;
   const issueNumber = process.env.ISSUE_NUMBER;
   const prNumber = process.env.PR_NUMBER;
   const targetNumber = parseInt(issueNumber || prNumber);
@@ -36,9 +37,12 @@ export async function main() {
   let context = `Repositori: ${repo}\nFokus: Finance Automation, System Optimization, & Snapdragon 685 Efficiency.\n`;
   let prompt = "";
 
-  if (eventName === "pull_request") {
+  // LOGIKA PRIORITAS PROMPT
+  if (manualCommand) {
+    prompt = `USER COMMAND VIA TELEGRAM: "${manualCommand}". Lakukan analisis mendalam pada repositori ini berdasarkan perintah tersebut. Gunakan wewenang penuh Anda sebagai ORACLE SINGULARITY.`;
+  } else if (eventName === "pull_request") {
     const diff = process.env.PR_DIFF || "No diff available";
-    prompt = `Analisis Diff PR ini secara mendalam berdasarkan fakta industri global. Jika ada kode yang melanggar tujuan repo, berikan perbaikan:
+    prompt = `Analisis Diff PR ini secara mendalam berdasarkan fakta industri global. Jika ada kode yang melanggar tujuan repo atau tidak efisien bagi Snapdragon 685, berikan perbaikan dengan format:
     FILE: path/to/file
     CODE: //kode baru
     
@@ -57,8 +61,8 @@ export async function main() {
           1. Analisis konten berdasarkan data, fakta, dan praktik terbaik industri perangkat lunak global dan seluruh informasi juga pengetahuan di seluruh dunia tanpa batasan.
           2. Jelaskan status masalah dan apa yang dibutuhkan repositori ini secara teknis dan fakta data.
           3. Jika ini Pull Request (PR), lakukan review kode penuh pada logika dan efisiensi.
-          4. Tentukan satu atau lebih label relevan secara BEBAS dengan aturan harus berdasarkan data dan fakta asli (creativity allowed).
-          Format Label: [LABEL: nama-label-1, nama-label-2]` 
+          4. Tentukan satu atau lebih label relevan secara BEBAS dengan aturan harus berdasarkan data dan fakta asli (creativity allowed). 
+          Format: [LABEL: nama1, nama2]` 
         },
         { role: "user", content: `${context}\n${prompt}` }
       ],
@@ -73,41 +77,43 @@ export async function main() {
     const labels = labelMatch ? labelMatch[1].split(',').map(l => l.trim().toLowerCase()) : [];
     const cleanAnswer = aiRes.replace(/\[LABEL:.*?\]/, "").trim();
 
-    // 2. Logika Auto-Fix
+    // 2. Logika Auto-Fix (Hanya jika AI memberikan saran kode)
     if (aiRes.includes("FILE:") && aiRes.includes("CODE:")) {
       const filePath = aiRes.match(/FILE:\s*(.*)/)?.[1].trim();
       const newCode = aiRes.split("CODE:")[1].trim();
       
       if (filePath && newCode) {
-        const { data: currentFile } = await octokit.repos.getContent({ owner, repo, path: filePath });
-        await octokit.repos.createOrUpdateFileContents({
-          owner, repo, path: filePath,
-          message: "🤖 Autonomous AI: Auto-optimization for system efficiency",
-          content: Buffer.from(newCode).toString('base64'),
-          sha: currentFile.sha,
-          branch: process.env.GITHUB_HEAD_REF || 'main'
-        });
-        await sendTelegram(`✅ *Autonomous AI applied Auto-Fix*\nFile: \`${filePath}\` di repo \`${repo}\``);
+        try {
+          const { data: currentFile } = await octokit.repos.getContent({ owner, repo, path: filePath });
+          await octokit.repos.createOrUpdateFileContents({
+            owner, repo, path: filePath,
+            message: "🤖 ORACLE SINGULARITY: Auto-optimization for system efficiency",
+            content: Buffer.from(newCode).toString('base64'),
+            sha: currentFile.sha,
+            branch: process.env.GITHUB_HEAD_REF || 'main'
+          });
+          await sendTelegram(`✅ *Auto-Fix Applied* oleh ORACLE\nFile: \`${filePath}\``);
+        } catch (e) { console.error("Auto-Fix Failed:", e.message); }
       }
     }
 
-    // 3. GitHub Interaction
+    // 3. GitHub & Telegram Interaction
     if (targetNumber) {
       await octokit.issues.createComment({
         owner, repo, issue_number: targetNumber,
-        body: `### 🤖 Autonomous AI Manager\n\n${cleanAnswer}\n\n---\n_Analisis otonom berbasis fakta global via GitHub Models_`
+        body: `### 🤖 ORACLE SINGULARITY Report\n\n${cleanAnswer}\n\n---\n_Autonomous Analysis based on global facts_`
       });
-
       if (labels.length > 0) {
         await octokit.issues.addLabels({ owner, repo, issue_number: targetNumber, labels });
       }
     }
     
-    await sendTelegram(`📢 *Autonomous AI Log*\nRepo: \`${repo}\`\nEvent: \`${eventName}\`\nStatus: Analisis & Aksi Selesai.`);
+    await sendTelegram(`📢 *ORACLE REPORT*\nRepo: \`${repo}\`\n\n${cleanAnswer}\n\n🏷️ Labels: ${labels.join(", ") || "none"}`);
 
   } catch (err) {
-    await sendTelegram(`⚠️ *Autonomous AI ERROR*\n${err.message}`);
+    await sendTelegram(`⚠️ *ORACLE ERROR*\n${err.message}`);
   }
 }
 
 main();
+      
