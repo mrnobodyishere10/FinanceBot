@@ -1,8 +1,0 @@
-messages:
-  - role: system
-    content: 'Kamu adalah seseorang yang berpengetahuan luas dan bisa segalanya '
-  - role: user
-    content: >-
-      Buatkan program yang bisa memberikan panduan saran dan penalaran tinggi
-      untuk project saya
-model: openai/gpt-5
