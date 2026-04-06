@@ -1,49 +1,63 @@
 ```markdown
 # FinanceBot
 
-## Deskripsi
-FinanceBot adalah bot yang dirancang untuk membantu pengguna dalam mengelola keuangan mereka dengan cara yang efisien dan efektif.
+FinanceBot is a comprehensive solution for managing financial transactions and providing insights using AI.
 
-## Instalasi
-1. Clone repositori ini.
-2. Jalankan `FinanceBot_full_backend_setup.sh` untuk menyiapkan backend.
-3. Pastikan untuk mengonfigurasi file `.env` dengan informasi yang diperlukan.
+## Setup Instructions
 
-## Penggunaan
-- Untuk menjalankan bot, gunakan `financebot_supervisor.sh`.
-- Untuk melakukan push ke repositori, gunakan `git_push.sh`.
+1. Clone the repository.
+2. Install dependencies using `npm install`.
+3. Set up your environment variables in the `.env` file.
+4. Run the backend setup script: `bash FinanceBot_full_backend_setup.sh`.
 
-## Kontribusi
-Silakan buka issue atau pull request jika Anda ingin berkontribusi pada proyek ini.
+## Directory Structure
 
-## Dokumentasi
-Dokumentasi lengkap dapat ditemukan di folder `/docs`.
+- **backend/**: Contains the server-side code.
+- **mobile/**: Contains the mobile application code.
+- **web/**: Contains the web application code.
+- **shared/**: Contains shared resources and utilities.
+- **docs/**: Documentation files.
+- **scripts/**: Contains various utility scripts.
+
+## Contribution
+
+Please follow the guidelines in the `CONTRIBUTING.md` file for contributing to this project.
+
+## License
+
+This project is licensed under the MIT License.
 ```
 ```bash
 # FinanceBot_full_backend_setup.sh
+
 #!/bin/bash
 
-# Script untuk menyiapkan backend FinanceBot
+# This script sets up the backend environment for FinanceBot.
 
-# Memastikan semua dependensi terinstal
+# Load environment variables
+source .env
+
+# Install necessary packages
 npm install
 
-# Menjalankan migrasi database
-npm run migrate
-
-# Menjalankan server
+# Start the server
 npm start
 ```
 ```javascript
 // sample.js
-// Contoh kode untuk FinanceBot
 
-function calculateBudget(income, expenses) {
-    if (income < 0 || expenses < 0) {
-        throw new Error("Income and expenses must be non-negative.");
+// Sample code demonstrating how to use the FinanceBot API
+
+const axios = require('axios');
+
+async function getTransactionData() {
+    try {
+        const response = await axios.get('https://api.financebot.com/transactions');
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error fetching transaction data:', error);
     }
-    return income - expenses;
 }
 
-module.exports = { calculateBudget };
+getTransactionData();
 ```
