@@ -1,4 +1,4 @@
-name: Autonomous AI Manager
+name: Autonomous AI Manager Workflow
 
 on:
   push:
@@ -7,16 +7,14 @@ on:
     types: [opened, synchronize]
   issues:
     types: [opened]
-  # Fitur untuk menerima perintah manual dari Telegram/Cloudflare
   workflow_dispatch:
     inputs:
       command:
-        description: 'Perintah dari Telegram'
+        description: 'Perintah Manual untuk AI'
         required: false
-        default: 'audit'
 
 jobs:
-  core-engine:
+  oracle-core:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -29,29 +27,29 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get PR Diff
+      - name: Fetch PR Diff
         if: github.event_name == 'pull_request'
         run: git diff origin/${{ github.base_ref }} HEAD > pr.diff
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Dependencies
-        run: npm install openai @octokit/rest axios
-
-      - name: Execute Oracle Engine
+      - name: Run Engine
         env:
           GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
           EVENT_BODY: ${{ github.event.issue.body || github.event.pull_request.body || github.event.head_commit.message }}
           MANUAL_COMMAND: ${{ github.event.inputs.command }}
         run: |
+          npm install openai @octokit/rest axios
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
           
