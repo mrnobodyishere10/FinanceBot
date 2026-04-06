@@ -1,30 +1,42 @@
-name: Run Internal AI Bot
+name: AI Interactive Assistant
 
 on:
-  push:
-    branches: [ main ] # Bot berjalan setiap kali Anda push ke branch main
-  workflow_dispatch: # Memungkinkan Anda menjalankan bot secara manual dari tab Actions
+  issues:
+    # Bot akan berjalan otomatis saat ada Issue baru dibuka
+    types: [opened]
+  # Menambahkan pemicu manual agar Anda bisa tes dari tab Actions jika perlu
+  workflow_dispatch:
 
 jobs:
-  execute-ai:
+  respond:
     runs-on: ubuntu-latest
+    
+    # Memberikan izin agar bot bisa menulis komentar dan memodifikasi Issue
+    permissions:
+      issues: write
+      contents: read
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install Dependencies
+        # Menginstal openai dan @octokit/rest berdasarkan package.json
         run: npm install
 
-      - name: Run AI Script
+      - name: Run Combined AI Bot
         env:
-          # MENGHUBUNGKAN SECRET ANDA KE SKRIP JS
-          # Kita ambil dari Secret 'GITHU8_TOKEN' dan namai variabelnya 'GITHUB_TOKEN'
+          # Menggunakan Secret kustom Anda untuk akses GitHub Models & API
           GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
+          
+          # Variabel context untuk identifikasi lokasi dan isi Issue
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: node sample.js
-        
+
