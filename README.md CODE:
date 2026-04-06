@@ -1,0 +1,49 @@
+```markdown
+# FinanceBot
+
+## Deskripsi
+FinanceBot adalah bot yang dirancang untuk membantu pengguna dalam mengelola keuangan mereka dengan cara yang efisien dan efektif.
+
+## Instalasi
+1. Clone repositori ini.
+2. Jalankan `FinanceBot_full_backend_setup.sh` untuk menyiapkan backend.
+3. Pastikan untuk mengonfigurasi file `.env` dengan informasi yang diperlukan.
+
+## Penggunaan
+- Untuk menjalankan bot, gunakan `financebot_supervisor.sh`.
+- Untuk melakukan push ke repositori, gunakan `git_push.sh`.
+
+## Kontribusi
+Silakan buka issue atau pull request jika Anda ingin berkontribusi pada proyek ini.
+
+## Dokumentasi
+Dokumentasi lengkap dapat ditemukan di folder `/docs`.
+```
+```bash
+# FinanceBot_full_backend_setup.sh
+#!/bin/bash
+
+# Script untuk menyiapkan backend FinanceBot
+
+# Memastikan semua dependensi terinstal
+npm install
+
+# Menjalankan migrasi database
+npm run migrate
+
+# Menjalankan server
+npm start
+```
+```javascript
+// sample.js
+// Contoh kode untuk FinanceBot
+
+function calculateBudget(income, expenses) {
+    if (income < 0 || expenses < 0) {
+        throw new Error("Income and expenses must be non-negative.");
+    }
+    return income - expenses;
+}
+
+module.exports = { calculateBudget };
+```
