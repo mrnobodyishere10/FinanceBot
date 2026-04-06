@@ -1,8 +1,14 @@
 const pdfService = require('../../services/pdfService');
 
+const PDF_COMMAND = '/pdf';
+
 module.exports = async (ctx) => {
     const user = ctx.from;
-    const message = ctx.message.text.replace('/pdf', '').trim();
+    const message = ctx.message.text.replace(PDF_COMMAND, '').trim();
+
+    if (!message) {
+        return ctx.reply('Silakan masukkan teks untuk PDF.');
+    }
 
     try {
         const pdfUrl = await pdfService.generatePDF(user.id, message);
