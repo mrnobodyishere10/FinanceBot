@@ -1,3 +1,7 @@
+```
 # FinanceBot Documentation
 
-This documentation covers all modules: backend, mobile, web, shared, and infra.
+This documentation provides an overview of the FinanceBot project, including setup instructions, usage, and API references.
+``` 
+
+Dengan perubahan ini, repositori akan lebih terstruktur, aman, dan mudah dipahami.
