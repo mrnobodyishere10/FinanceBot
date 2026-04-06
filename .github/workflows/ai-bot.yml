@@ -7,7 +7,13 @@ on:
     types: [opened, synchronize]
   issues:
     types: [opened]
+  # Fitur untuk menerima perintah manual dari Telegram/Cloudflare
   workflow_dispatch:
+    inputs:
+      command:
+        description: 'Perintah dari Telegram'
+        required: false
+        default: 'audit'
 
 jobs:
   core-engine:
@@ -35,7 +41,7 @@ jobs:
       - name: Install Dependencies
         run: npm install openai @octokit/rest axios
 
-      - name: Execute Autonomous AI
+      - name: Execute Oracle Engine
         env:
           GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -43,15 +49,9 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          EVENT_BODY: ${{ github.event.issue.body || github.event.head_commit.message }}
+          EVENT_BODY: ${{ github.event.issue.body || github.event.pull_request.body || github.event.head_commit.message }}
+          MANUAL_COMMAND: ${{ github.event.inputs.command }}
         run: |
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
           
-          # Logika pemisahan context ID
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          
-          # Mengambil konten body dari event manapun yang terjadi
-          EVENT_BODY: ${{ github.event.issue.body || github.event.pull_request.body }}
-        run: node sample.js
