@@ -1,0 +1,7 @@
+```bash
+#!/bin/bash
+echo "Building the project..."
+npm install
+npm run build
+echo "Build completed."
+```
