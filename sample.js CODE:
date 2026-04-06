@@ -1,0 +1,16 @@
+```javascript
+// Kode lama yang dipreservasi
+function oldFunction() {
+    console.log("This is an old function.");
+}
+
+// Kode baru yang diupdate
+function newFunction() {
+    console.log("This is a new function.");
+}
+
+// Memanggil fungsi lama dan baru
+oldFunction();
+newFunction();
+```
+Saya akan memastikan README.md dan /docs diperbarui untuk mencerminkan perubahan ini.
