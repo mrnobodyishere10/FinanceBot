@@ -1,4 +1,3 @@
-// referral.js
 const referralService = require('../../services/referralService');
 
 module.exports = async (ctx, code) => {
