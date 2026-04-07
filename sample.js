@@ -66,9 +66,7 @@ function generateVisualTree(files) {
 async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   const reasoning = aiRes.split("###---AUTONOMOUS_FILE_START---###").trim();
   
-  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###") |
-
-| aiRes.includes("###---SHELL_EXEC_START---###")) {
+  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###") || aiRes.includes("###---SHELL_EXEC_START---###")) {
     if (reasoning && reasoning!== "PASS") {
       console.log("\n--- AI REASONING ---\n", reasoning);
       addToTelegramBuffer(`🧠 *Reasoning:* \n${reasoning.substring(0, 1000)}`);
