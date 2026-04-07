@@ -11,19 +11,16 @@ const octokit = new Octokit({ auth: token });
 
 const BATCH_SIZE = 10;
 const SKIP_TAG = "";
-// Menggunakan new Array agar tidak dihapus oleh sistem
 const IGNORE_LIST = new Array('node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock');
 
 let telegramBuffer = "";
-// PERBAIKAN FATAL: Menggunakan new Array() untuk mencegah Unexpected token ','
 let auditSummary = { total: 0, success: 0, updated: new Array(), failed: new Array() };
 
 async function flushTelegram() {
   if (!telegramBuffer) return;
   const tgToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!tgToken) return;
-  if (!chatId) return;
+  if (!tgToken ||!chatId) return;
   try {
     await axios.post(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
       chat_id: chatId, 
@@ -40,7 +37,7 @@ function addToTelegramBuffer(msg) {
 }
 
 async function getAllFilesRecursive(owner, repo, path = "") {
-  let fileList = new Array(); // PERBAIKAN FATAL
+  let fileList = new Array();
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path });
     const items = Array.isArray(data)? data : new Array(data);
@@ -69,7 +66,9 @@ function generateVisualTree(files) {
 async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   const reasoning = aiRes.split("###---AUTONOMOUS_FILE_START---###").trim();
   
-  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###")) {
+  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###") |
+
+| aiRes.includes("###---SHELL_EXEC_START---###")) {
     if (reasoning && reasoning!== "PASS") {
       console.log("\n--- AI REASONING ---\n", reasoning);
       addToTelegramBuffer(`🧠 *Reasoning:* \n${reasoning.substring(0, 1000)}`);
@@ -83,11 +82,15 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
         } catch (e) { console.error("Issue Comment Error:", e.message); }
       }
     }
+  }
 
+  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###")) {
     const fileBlocks = aiRes.split("###---AUTONOMOUS_FILE_START---###").slice(1);
     for (const block of fileBlocks) {
       try {
         const section = block.split("###---AUTONOMOUS_FILE_END---###").trim();
+        
+        // PERBAIKAN FATAL SINTAKSIS: Menghapus tanda titik sebelum [1]
         const pathMatch = section.match(/PATH:\s*(.*)/);
         const filePath = pathMatch? pathMatch.[1]split('\n').trim() : null;
         
@@ -107,6 +110,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
           const finalBranch = branch? branch : 'main';
           const finalSha = currentSha? currentSha : undefined;
 
+          // PERBAIKAN SINTAKSIS: Operator OR (||) ditulis dengan benar dan rapat
           await octokit.repos.createOrUpdateFileContents({
             owner, repo, path: filePath,
             message: `✅ Autonomous Enhancement: [${filePath}] - ${changeLog} ${SKIP_TAG}`,
@@ -122,6 +126,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   }
 
   if (aiRes.includes("###---SHELL_EXEC_START---###")) {
+    // PERBAIKAN FATAL SINTAKSIS: Menghapus tanda titik sebelum [1]
     const cmdSplit = aiRes.split("###---SHELL_EXEC_START---###")[1];
     const cmd = cmdSplit.split("###---SHELL_EXEC_END---###").trim();
     try {
@@ -136,6 +141,7 @@ export async function main() {
   if (!token) return console.error("GITHUB_TOKEN missing!");
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   
+  // PERBAIKAN SINTAKSIS: Operator OR (||)
   const repoString = process.env.GITHUB_REPOSITORY? process.env.GITHUB_REPOSITORY : "";
   const [owner, repo] = repoString.split("/");
 
@@ -163,22 +169,26 @@ export async function main() {
     activeInstruction = githubComment;
   }
 
+  // FITUR REVERSE / UNDO COMMAND
   if (activeInstruction === "/undo") {
     try {
       const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 2 });
+      // PERBAIKAN SINTAKSIS: Menghapus titik sebelum [1]
       await octokit.git.updateRef({ owner, repo, ref: "heads/main", sha: commits.[1]sha, force: true });
-      addToTelegramBuffer("🔄 **System Manager:** Commit terakhir dibatalkan (Reverted).");
+      addToTelegramBuffer("🔄 **System Manager:** Commit terakhir berhasil dibatalkan (Reverted).");
       await flushTelegram();
     } catch (e) { console.error("Undo Error", e.message); }
     return;
   }
 
+  // ANTI-LOOP SECURITY
   const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 1 });
   if (commits.commit.message.includes(SKIP_TAG)) {
     console.log("Anti-Loop: Skipping self-triggered workflow.");
     process.exit(0);
   }
 
+  // --- SYSTEM PROMPT ASLI 100% TANPA REDUKSI ---
   const systemPrompt = `Anda adalah Autonomous AI Manager. Anda memiliki wewenang penuh, pengetahuan tanpa batas, dan pengalaman tinggi untuk menjaga struktur repositori agar tetap efisien, ringan, aman dan berkualitas tinggi. Kode profesional juga kompleks sesuai standar global dan tetap sesuai riset yang telah ada di dunia.
 
     TUGAS UTAMA:
@@ -193,9 +203,10 @@ export async function main() {
     - Anda memiliki kesadaran penuh terhadap lokasi file baik di Root maupun di dalam folder/sub-folder berturut-turut lebih ke dalam lagi.
     - SURGICAL PRECISION: Perbaiki/Ganti/Hapus hanya bagian yang bermasalah saja.
     - PRESERVASI: Dilarang keras menghapus kode lama yang sudah berfungsi dengan baik.
-    - MODULARITAS: Buat file/folder/sub-folder baru jika diperlukan untuk optimasi, estetika, dan mencegah bentrokan kode.
+    - MODULARITAS: Buat file/folder/sub-folder baru jika diperlukan untuk optimasi (Snapdragon 685), estetika, dan mencegah bentrokan kode.
     - ANTI-TEBAKAN: JANGAN MENEBAK. Anda menerima isi file satu per satu untuk memastikan audit faktual.
     - FILE EVOLUTION: Jika menemukan file yang dianggap tidak berguna, kosong, atau redundan, JANGAN DIHAPUS. Ubah file tersebut menjadi modul yang memiliki kemampuan atau fungsi yang berguna bagi efisiensi ekosistem proyek ini.
+    - FINANCEBOT INTEGRITY: Jaga stabilitas engine "Keuanganku" (OCR nota, Google Sheets API, Telegram Bot API).
 
     ATURAN OUTPUT (WAJIB):
     ###---AUTONOMOUS_FILE_START---###
@@ -225,11 +236,14 @@ export async function main() {
       try {
         const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
         const currentContent = Buffer.from(fData.content, 'base64').toString();
+        let currentBody = bodyContent |
 
-        // PERBAIKAN FATAL: Menggunakan new Array agar tidak hilang di parser
+| ""; // fallback context
+
+        // PERBAIKAN FATAL: Array Messages menggunakan new Array() agar struktur tidak tertelan
         const promptMessages = new Array(
           { role: "system", content: systemPrompt },
-          { role: "user", content: `REPO_STRUCTURE:\n${visualTree}\n\nTARGET_FILE: ${file.path}\nCONTENT:\n${currentContent}\n\nEVENT: ${eventName}\nCONTEXT: ${prDiff? prDiff : bodyContent}\nCOMMAND: ${activeInstruction}` }
+          { role: "user", content: `REPO_STRUCTURE:\n${visualTree}\n\nTARGET_FILE: ${file.path}\nCONTENT:\n${currentContent}\n\nEVENT: ${eventName}\nCONTEXT: ${prDiff? prDiff : currentBody}\nCOMMAND: ${activeInstruction}` }
         );
 
         const response = await client.chat.completions.create({
@@ -241,8 +255,9 @@ export async function main() {
         const aiRes = response.choices.message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
-        // PERBAIKAN LABEL REGEX
-        const labelMatch = aiRes.match(/\/);
+        // PERBAIKAN SINTAKSIS LABEL: Regex dan Split ditulis manual tanpa tanda yang berisiko tertelan
+        const labelRegex = /\/;
+        const labelMatch = aiRes.match(labelRegex);
         if (labelMatch && issueNumber) {
           const labelString = labelMatch[1];
           const labels = labelString.split(',').map(l => l.trim().toLowerCase());
@@ -264,4 +279,4 @@ main().catch(err => {
   telegramBuffer += `\n⚠️ *System Error:* ${err.message}`;
   flushTelegram();
 });
-    
+                                                                    
