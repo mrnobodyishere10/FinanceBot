@@ -89,7 +89,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
         const section = block.split("###---AUTONOMOUS_FILE_END---###").trim();
         
         const pathMatch = section.match(/PATH:\s*(.*)/);
-        const filePath = pathMatch? pathMatch.[1]split('\n').trim() : null;
+        const filePath = pathMatch? pathMatch.at(1).split('\n').at(0).trim() : null;
         
         const changelogMatch = section.match(/CHANGELOG:\s*(.*)/);
         const changeLog = changelogMatch? changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
