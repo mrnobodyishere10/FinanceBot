@@ -4,32 +4,27 @@ on:
   issue_comment:
     types: [created]
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
   push:
-    branches: [main, master]
+    branches:
+      - main
   workflow_dispatch:
     inputs:
-      manual_command:
-        description: 'Input bebas dari Telegram'
+      command:
+        description: 'Input perintah bebas dari Telegram'
         required: false
       source:
-        description: 'Identifier Sumber'
+        description: 'Identifikasi asal perintah'
         required: false
-
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  statuses: write
 
 jobs:
   execute-autonomous:
-    if: ${{ github.event_name == 'workflow_dispatch' |
-
-| github.event_name == 'pull_request' |
-| github.event_name == 'push' |
-| startsWith(github.event.comment.body, '/') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || github.event_name == 'push' || startsWith(github.event.comment.body, '/') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -38,9 +33,7 @@ jobs:
 
       - name: Fetch PR Diff
         if: github.event_name == 'pull_request'
-        run: git diff origin/${{ github.base_ref }} HEAD > pr.diff |
-
-| true
+        run: git diff origin/${{ github.base_ref }}...HEAD > pr.diff || true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,18 +43,15 @@ jobs:
       - name: Install Dependencies
         run: npm install openai @octokit/rest axios
 
-      - name: Run Engine
+      - name: Start Sovereign Engine
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          MANUAL_CMD: ${{ github.event.inputs.manual_command }}
-          CMD_SOURCE: ${{ github.event.inputs.source }}
+          MANUAL_CMD: ${{ github.event.inputs.command || github.event.comment.body }}
+          CMD_SOURCE: ${{ github.event.inputs.source || github.event_name }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-          GITHUB_HEAD_REF: ${{ github.head_ref }}
-          ISSUE_NUMBER: ${{ github.event.issue.number |
-
-| github.event.pull_request.number }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
         run: |
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
