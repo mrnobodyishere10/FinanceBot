@@ -92,7 +92,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
         const filePath = pathMatch? pathMatch.at(1).split('\n').at(0).trim() : null;
         
         const changelogMatch = section.match(/CHANGELOG:\s*(.*)/);
-        const changeLog = changelogMatch? changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
+        const changeLog = changelogMatch? changelogMatch.at(1).split('\n').at(0).trim() : "Systematic Precision Update";
         
         const codeSplit = section.split("###---CONTENT_START---###");
         const codeContent = codeSplit.length > 1? codeSplit.[1]trim() : null;
