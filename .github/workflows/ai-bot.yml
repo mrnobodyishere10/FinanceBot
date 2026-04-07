@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch PR Diff
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: git diff origin/${{ github.base_ref }} HEAD > pr.diff || true
 
       - name: Setup Node.js
@@ -57,3 +57,4 @@ jobs:
         run: |
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
+          
