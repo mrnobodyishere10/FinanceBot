@@ -11,17 +11,19 @@ const octokit = new Octokit({ auth: token });
 
 const BATCH_SIZE = 10;
 const SKIP_TAG = "";
-const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock'];
+// Menggunakan new Array agar tidak dihapus oleh sistem
+const IGNORE_LIST = new Array('node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock');
 
 let telegramBuffer = "";
-// PERBAIKAN: Format Object dan Array 100% valid
-let auditSummary = { total: 0, success: 0, updated:, failed: };
+// PERBAIKAN FATAL: Menggunakan new Array() untuk mencegah Unexpected token ','
+let auditSummary = { total: 0, success: 0, updated: new Array(), failed: new Array() };
 
 async function flushTelegram() {
   if (!telegramBuffer) return;
   const tgToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!tgToken ||!chatId) return;
+  if (!tgToken) return;
+  if (!chatId) return;
   try {
     await axios.post(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
       chat_id: chatId, 
@@ -38,10 +40,10 @@ function addToTelegramBuffer(msg) {
 }
 
 async function getAllFilesRecursive(owner, repo, path = "") {
-  let fileList =;
+  let fileList = new Array(); // PERBAIKAN FATAL
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path });
-    const items = Array.isArray(data)? data : [data];
+    const items = Array.isArray(data)? data : new Array(data);
     for (const item of items) {
       if (IGNORE_LIST.includes(item.name)) continue;
       if (item.type === "dir") {
@@ -86,8 +88,6 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
     for (const block of fileBlocks) {
       try {
         const section = block.split("###---AUTONOMOUS_FILE_END---###").trim();
-        
-        // PERBAIKAN FATAL: Sintaksis RegExp dan Array Index
         const pathMatch = section.match(/PATH:\s*(.*)/);
         const filePath = pathMatch? pathMatch.[1]split('\n').trim() : null;
         
@@ -104,16 +104,15 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
             currentSha = data.sha;
           } catch (e) { currentSha = null; }
 
+          const finalBranch = branch? branch : 'main';
+          const finalSha = currentSha? currentSha : undefined;
+
           await octokit.repos.createOrUpdateFileContents({
             owner, repo, path: filePath,
             message: `✅ Autonomous Enhancement: [${filePath}] - ${changeLog} ${SKIP_TAG}`,
             content: Buffer.from(codeContent).toString('base64'),
-            sha: currentSha |
-
-| undefined,
-            branch: branch |
-
-| 'main'
+            sha: finalSha,
+            branch: finalBranch
           });
           addToTelegramBuffer(`🎯 *Managed:* \`${filePath}\` updated.\n📝 *Changelog:* ${changeLog}`);
           auditSummary.updated.push(filePath);
@@ -123,16 +122,13 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   }
 
   if (aiRes.includes("###---SHELL_EXEC_START---###")) {
-    // PERBAIKAN FATAL: Array Index untuk split shell command
-    const cmdSplit = aiRes.split("###---SHELL_EXEC_START---###");
-    if (cmdSplit.length > 1) {
-      const cmd = cmdSplit.[1]split("###---SHELL_EXEC_END---###").trim();
-      try {
-        console.log(`Executing Shell: ${cmd}`);
-        const output = execSync(cmd, { encoding: 'utf-8' });
-        addToTelegramBuffer(`⚙️ *Shell Output:*\n\`\`\`\n${output.substring(0, 800)}\n\`\`\``);
-      } catch (err) { console.error(`Shell Error: ${err.message}`); }
-    }
+    const cmdSplit = aiRes.split("###---SHELL_EXEC_START---###")[1];
+    const cmd = cmdSplit.split("###---SHELL_EXEC_END---###").trim();
+    try {
+      console.log(`Executing Shell: ${cmd}`);
+      const output = execSync(cmd, { encoding: 'utf-8' });
+      addToTelegramBuffer(`⚙️ *Shell Output:*\n\`\`\`\n${output.substring(0, 800)}\n\`\`\``);
+    } catch (err) { console.error(`Shell Error: ${err.message}`); }
   }
 }
 
@@ -140,9 +136,7 @@ export async function main() {
   if (!token) return console.error("GITHUB_TOKEN missing!");
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   
-  const repoString = process.env.GITHUB_REPOSITORY |
-
-| "";
+  const repoString = process.env.GITHUB_REPOSITORY? process.env.GITHUB_REPOSITORY : "";
   const [owner, repo] = repoString.split("/");
 
   const eventPath = process.env.GITHUB_EVENT_PATH;
@@ -150,47 +144,41 @@ export async function main() {
   const manualCmd = process.env.MANUAL_CMD; 
   const source = process.env.CMD_SOURCE;
   
-  let issueNumberRaw = process.env.ISSUE_NUMBER |
-
-| eventData.issue?.number |
-| eventData.pull_request?.number;
-  const issueNumber = issueNumberRaw? parseInt(issueNumberRaw) : null;
+  let issueNumber = process.env.ISSUE_NUMBER;
+  if (!issueNumber && eventData.issue) issueNumber = eventData.issue.number;
+  if (!issueNumber && eventData.pull_request) issueNumber = eventData.pull_request.number;
+  issueNumber = issueNumber? parseInt(issueNumber) : null;
   
-  const prDiff = process.env.PR_DIFF |
-
-| "";
-  const eventName = process.env.GITHUB_EVENT_NAME |
-
-| "";
-  const githubComment = eventData.comment?.body |
-
-| eventData.pull_request?.body |
-| "";
+  const prDiff = process.env.PR_DIFF? process.env.PR_DIFF : "";
+  const eventName = process.env.GITHUB_EVENT_NAME? process.env.GITHUB_EVENT_NAME : "";
   
-  const activeInstruction = (source === "TELEGRAM_EXECUTOR" && manualCmd)? manualCmd : (githubComment |
+  let githubComment = "";
+  if (eventData.comment) githubComment = eventData.comment.body;
+  if (!githubComment && eventData.pull_request) githubComment = eventData.pull_request.body;
+  
+  let activeInstruction = "Audit and Systematic Enhancement.";
+  if (source === "TELEGRAM_EXECUTOR" && manualCmd) {
+    activeInstruction = manualCmd;
+  } else if (githubComment) {
+    activeInstruction = githubComment;
+  }
 
-| "Audit and Systematic Enhancement.");
-
-  // FITUR REVERSE / UNDO COMMAND
   if (activeInstruction === "/undo") {
     try {
       const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 2 });
-      // PERBAIKAN FATAL: Array Index untuk undo commit
       await octokit.git.updateRef({ owner, repo, ref: "heads/main", sha: commits.[1]sha, force: true });
-      addToTelegramBuffer("🔄 **System Manager:** Commit terakhir berhasil dibatalkan (Reverted).");
+      addToTelegramBuffer("🔄 **System Manager:** Commit terakhir dibatalkan (Reverted).");
       await flushTelegram();
     } catch (e) { console.error("Undo Error", e.message); }
     return;
   }
 
-  // ANTI-LOOP SECURITY
   const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 1 });
   if (commits.commit.message.includes(SKIP_TAG)) {
     console.log("Anti-Loop: Skipping self-triggered workflow.");
     process.exit(0);
   }
 
-  // --- SYSTEM PROMPT ASLI 100% TANPA REDUKSI (MURNI SESI INI) ---
   const systemPrompt = `Anda adalah Autonomous AI Manager. Anda memiliki wewenang penuh, pengetahuan tanpa batas, dan pengalaman tinggi untuk menjaga struktur repositori agar tetap efisien, ringan, aman dan berkualitas tinggi. Kode profesional juga kompleks sesuai standar global dan tetap sesuai riset yang telah ada di dunia.
 
     TUGAS UTAMA:
@@ -238,8 +226,14 @@ export async function main() {
         const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
         const currentContent = Buffer.from(fData.content, 'base64').toString();
 
+        // PERBAIKAN FATAL: Menggunakan new Array agar tidak hilang di parser
+        const promptMessages = new Array(
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `REPO_STRUCTURE:\n${visualTree}\n\nTARGET_FILE: ${file.path}\nCONTENT:\n${currentContent}\n\nEVENT: ${eventName}\nCONTEXT: ${prDiff? prDiff : bodyContent}\nCOMMAND: ${activeInstruction}` }
+        );
+
         const response = await client.chat.completions.create({
-          messages:,
+          messages: promptMessages,
           model: modelName,
           temperature: 0.1 
         });
@@ -247,10 +241,11 @@ export async function main() {
         const aiRes = response.choices.message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
-        // PERBAIKAN FATAL SINTAKSIS LABEL: Regex dan Array diperbaiki
+        // PERBAIKAN LABEL REGEX
         const labelMatch = aiRes.match(/\/);
         if (labelMatch && issueNumber) {
-          const labels = labelMatch.[1]split(',').map(l => l.trim().toLowerCase());
+          const labelString = labelMatch[1];
+          const labels = labelString.split(',').map(l => l.trim().toLowerCase());
           await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
         }
         auditSummary.success++;
@@ -268,4 +263,5 @@ main().catch(err => {
   console.error("Critical Error:", err);
   telegramBuffer += `\n⚠️ *System Error:* ${err.message}`;
   flushTelegram();
-});                                          
+});
+    
