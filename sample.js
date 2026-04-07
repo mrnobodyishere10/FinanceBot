@@ -90,7 +90,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
         
         // PERBAIKAN: pathMatch[1] tanpa titik
         const pathMatch = section.match(/PATH:\s*(.*)/);
-        const filePath = pathMatch? pathMatch[1]split('\n').trim() : null;
+        const filePath = pathMatch? pathMatch.[1]split('\n').trim() : null;
         
         const changelogMatch = section.match(/CHANGELOG:\s*(.*)/);
         const changeLog = changelogMatch? changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
