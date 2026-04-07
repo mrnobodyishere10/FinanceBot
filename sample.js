@@ -237,7 +237,7 @@ export async function main() {
         const promptContext = prDiff? prDiff : bodyContent;
 
         const response = await client.chat.completions.create({
-          messages:,
+          messages: promptMessages,
           model: modelName,
           temperature: 0.1 
         });
