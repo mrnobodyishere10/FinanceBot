@@ -112,9 +112,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
               currentSha = data.sha;
             } catch (e) { currentSha = null; }
 
-            // Menghindari operator |
-
-| yang sering terpecah
+            // Menghindari operator || yang sering terpecah
             const finalBranch = branch? branch : 'main';
             const finalSha = currentSha? currentSha : undefined;
 
