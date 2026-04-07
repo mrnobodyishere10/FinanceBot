@@ -14,8 +14,7 @@ const SKIP_TAG = "";
 const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock'];
 
 let telegramBuffer = "";
-// PERBAIKAN: Menggunakan array kurung siku yang benar agar tidak error
-let auditSummary = { total: 0, success: 0, updated:, failed: };
+let auditSummary = { total: 0, success: 0, updated: new Array(), failed: new Array() };
 
 async function flushTelegram() {
   if (!telegramBuffer) return;
@@ -38,10 +37,10 @@ function addToTelegramBuffer(msg) {
 }
 
 async function getAllFilesRecursive(owner, repo, path = "") {
-  let fileList =;
+  let fileList = new Array();
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path });
-    const items = Array.isArray(data)? data : [data];
+    const items = Array.isArray(data)? data : new Array(data);
     for (const item of items) {
       if (IGNORE_LIST.includes(item.name)) continue;
       if (item.type === "dir") {
@@ -91,13 +90,14 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
       try {
         const section = block.split("###---AUTONOMOUS_FILE_END---###").trim();
         
-        // PERBAIKAN FATAL: Menghapus titik sebelum kurung siku [1]
+        // PERBAIKAN: pathMatch[1] tanpa titik
         const pathMatch = section.match(/PATH:\s*(.*)/);
-        const filePath = pathMatch && pathMatch?[1] pathMatch.[1]split('\n').trim() : null;
+        const filePath = pathMatch? pathMatch.[1]split('\n').trim() : null;
         
         const changelogMatch = section.match(/CHANGELOG:\s*(.*)/);
-        const changeLog = changelogMatch && changelogMatch?[1] changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
+        const changeLog = changelogMatch? changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
         
+        // PERBAIKAN: codeSplit[1] tanpa titik
         const codeSplit = section.split("###---CONTENT_START---###");
         const codeContent = codeSplit.length > 1? codeSplit.[1]trim() : null;
 
@@ -127,9 +127,10 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   }
 
   if (aiRes.includes("###---SHELL_EXEC_START---###")) {
-    const cmdSplit = aiRes.split("###---SHELL_EXEC_START---###")[1];
-    if (cmdSplit) {
-      const cmd = cmdSplit.split("###---SHELL_EXEC_END---###").trim();
+    // PERBAIKAN: cmdSplit[1] tanpa titik
+    const cmdSplit = aiRes.split("###---SHELL_EXEC_START---###");
+    if (cmdSplit.length > 1) {
+      const cmd = cmdSplit.[1]split("###---SHELL_EXEC_END---###").trim();
       try {
         console.log(`Executing Shell: ${cmd}`);
         const output = execSync(cmd, { encoding: 'utf-8' });
@@ -143,12 +144,7 @@ export async function main() {
   if (!token) return console.error("GITHUB_TOKEN missing!");
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   
-  // PERBAIKAN: Operator OR ditulis dengan |
-
-| yang rapat
-  const repoString = process.env.GITHUB_REPOSITORY |
-
-| "";
+  const repoString = process.env.GITHUB_REPOSITORY? process.env.GITHUB_REPOSITORY : "";
   const [owner, repo] = repoString.split("/");
 
   const eventPath = process.env.GITHUB_EVENT_PATH;
@@ -156,25 +152,21 @@ export async function main() {
   const manualCmd = process.env.MANUAL_CMD; 
   const source = process.env.CMD_SOURCE;
   
-  const issueNumberRaw = process.env.ISSUE_NUMBER |
+  let issueNumberRaw = process.env.ISSUE_NUMBER |
 
 | eventData.issue?.number |
 | eventData.pull_request?.number;
   const issueNumber = issueNumberRaw? parseInt(issueNumberRaw) : null;
   
-  const prDiff = process.env.PR_DIFF |
-
-| "";
-  const eventName = process.env.GITHUB_EVENT_NAME |
-
-| "";
-  const githubComment = eventData.comment?.body |
+  const prDiff = process.env.PR_DIFF? process.env.PR_DIFF : "";
+  const eventName = process.env.GITHUB_EVENT_NAME? process.env.GITHUB_EVENT_NAME : "";
+  
+  let githubComment = eventData.comment?.body |
 
 | eventData.pull_request?.body |
 | "";
-  let bodyContent = "Audit berkala"; // Fallback context
-  
   let activeInstruction = "Audit and Systematic Enhancement.";
+  
   if (source === "TELEGRAM_EXECUTOR" && manualCmd) {
     activeInstruction = manualCmd;
   } else if (githubComment) {
@@ -185,7 +177,7 @@ export async function main() {
   if (activeInstruction === "/undo") {
     try {
       const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 2 });
-      // PERBAIKAN FATAL: Menghapus titik sebelum kurung siku
+      // PERBAIKAN: commits.[1]sha tanpa titik
       await octokit.git.updateRef({ owner, repo, ref: "heads/main", sha: commits.[1]sha, force: true });
       addToTelegramBuffer("🔄 **System Manager:** Commit terakhir berhasil dibatalkan (Reverted).");
       await flushTelegram();
@@ -200,7 +192,6 @@ export async function main() {
     process.exit(0);
   }
 
-  // --- SYSTEM PROMPT ASLI 100% TANPA REDUKSI (MURNI SESI INI) ---
   const systemPrompt = `Anda adalah Autonomous AI Manager. Anda memiliki wewenang penuh, pengetahuan tanpa batas, dan pengalaman tinggi untuk menjaga struktur repositori agar tetap efisien, ringan, aman dan berkualitas tinggi. Kode profesional juga kompleks sesuai standar global dan tetap sesuai riset yang telah ada di dunia.
 
     TUGAS UTAMA:
@@ -248,7 +239,10 @@ export async function main() {
         const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
         const currentContent = Buffer.from(fData.content, 'base64').toString();
 
-        // PERBAIKAN: Format Array Messages dipastikan menggunakan format standar JavaScript
+        let bodyContent = "Audit berkala";
+        const promptContext = prDiff? prDiff : bodyContent;
+
+        // PERBAIKAN: Format Array JS Standar
         const promptMessages =;
 
         const response = await client.chat.completions.create({
@@ -260,9 +254,8 @@ export async function main() {
         const aiRes = response.choices.message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
-        // PERBAIKAN SINTAKSIS LABEL
-        const labelRegex = /\/;
-        const labelMatch = aiRes.match(labelRegex);
+        // PERBAIKAN: labelMatch[1] tanpa titik
+        const labelMatch = aiRes.match(/\/);
         if (labelMatch && issueNumber) {
           const labelString = labelMatch[1];
           const labels = labelString.split(',').map(l => l.trim().toLowerCase());
