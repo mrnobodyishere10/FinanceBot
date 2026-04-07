@@ -245,7 +245,7 @@ export async function main() {
         const aiRes = response.choices.message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
-        const labelMatch = aiRes.match(/\/);
+        const labelMatch = aiRes.match(labelRegex);
         if (labelMatch && issueNumber) {
           const labels = labelMatch.[1]split(',').map(l => l.trim().toLowerCase());
           await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
