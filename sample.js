@@ -178,6 +178,7 @@ export async function main() {
   // Jika Anda mengirim perintah dari Telegram, bot tetap akan jalan meskipun commit terakhir dari bot.
   if (eventName === "push") {
     const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 1 });
+    const lastCommit = commits.at(0);
     if (commits && commits.length > 0 && commits.commit.message.includes(SKIP_TAG)) {
       console.log("Anti-Loop: Skipping self-triggered workflow.");
       process.exit(0);
