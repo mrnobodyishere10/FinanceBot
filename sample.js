@@ -11,17 +11,19 @@ const octokit = new Octokit({ auth: token });
 
 const BATCH_SIZE = 10;
 const SKIP_TAG = "";
-const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock'];
+// Menggunakan new Array agar tidak dihapus oleh sistem
+const IGNORE_LIST = new Array('node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock');
 
 let telegramBuffer = "";
-// PERBAIKAN SINTAKSIS: Array dikembalikan dengan benar
-let auditSummary = { total: 0, success: 0, updated: failed: };
+// PERBAIKAN FATAL: Menggunakan new Array() untuk mencegah Unexpected token ','
+let auditSummary = { total: 0, success: 0, updated: new Array(), failed: new Array() };
 
 async function flushTelegram() {
   if (!telegramBuffer) return;
   const tgToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!tgToken ||!chatId) return;
+  if (!tgToken) return;
+  if (!chatId) return;
   try {
     await axios.post(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
       chat_id: chatId, 
@@ -38,10 +40,10 @@ function addToTelegramBuffer(msg) {
 }
 
 async function getAllFilesRecursive(owner, repo, path = "") {
-  let fileList =; // PERBAIKAN SINTAKSIS: Array dikembalikan dengan benar
+  let fileList = new Array(); // PERBAIKAN FATAL
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path });
-    const items = Array.isArray(data)? data : [data];
+    const items = Array.isArray(data)? data : new Array(data);
     for (const item of items) {
       if (IGNORE_LIST.includes(item.name)) continue;
       if (item.type === "dir") {
@@ -92,7 +94,8 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
         const changelogMatch = section.match(/CHANGELOG:\s*(.*)/);
         const changeLog = changelogMatch? changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
         
-        const codeContent = section.split("###---CONTENT_START---###")?.[1]trim();
+        const codeSplit = section.split("###---CONTENT_START---###");
+        const codeContent = codeSplit.length > 1? codeSplit.[1]trim() : null;
 
         if (filePath && codeContent) {
           let currentSha = null;
@@ -101,17 +104,15 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
             currentSha = data.sha;
           } catch (e) { currentSha = null; }
 
-          // PERBAIKAN SINTAKSIS: Operator OR (||) dipastikan rapat
+          const finalBranch = branch? branch : 'main';
+          const finalSha = currentSha? currentSha : undefined;
+
           await octokit.repos.createOrUpdateFileContents({
             owner, repo, path: filePath,
             message: `✅ Autonomous Enhancement: [${filePath}] - ${changeLog} ${SKIP_TAG}`,
             content: Buffer.from(codeContent).toString('base64'),
-            sha: currentSha |
-
-| undefined,
-            branch: branch |
-
-| 'main'
+            sha: finalSha,
+            branch: finalBranch
           });
           addToTelegramBuffer(`🎯 *Managed:* \`${filePath}\` updated.\n📝 *Changelog:* ${changeLog}`);
           auditSummary.updated.push(filePath);
@@ -121,7 +122,8 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   }
 
   if (aiRes.includes("###---SHELL_EXEC_START---###")) {
-    const cmd = aiRes.split("###---SHELL_EXEC_START---###").[1]split("###---SHELL_EXEC_END---###").trim();
+    const cmdSplit = aiRes.split("###---SHELL_EXEC_START---###")[1];
+    const cmd = cmdSplit.split("###---SHELL_EXEC_END---###").trim();
     try {
       console.log(`Executing Shell: ${cmd}`);
       const output = execSync(cmd, { encoding: 'utf-8' });
@@ -134,31 +136,32 @@ export async function main() {
   if (!token) return console.error("GITHUB_TOKEN missing!");
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   
-  // PERBAIKAN SINTAKSIS: Operator OR (||) dipastikan rapat
-  const repoEnv = process.env.GITHUB_REPOSITORY |
-
-| "";
-  const [owner, repo] = repoEnv.split("/");
+  const repoString = process.env.GITHUB_REPOSITORY? process.env.GITHUB_REPOSITORY : "";
+  const [owner, repo] = repoString.split("/");
 
   const eventPath = process.env.GITHUB_EVENT_PATH;
   const eventData = eventPath? JSON.parse(fs.readFileSync(eventPath, 'utf8')) : {};
   const manualCmd = process.env.MANUAL_CMD; 
   const source = process.env.CMD_SOURCE;
   
-  const issueNumber = process.env.ISSUE_NUMBER? parseInt(process.env.ISSUE_NUMBER) : (eventData.issue?.number |
-
-| eventData.pull_request?.number);
-  const prDiff = process.env.PR_DIFF |
-
-| "";
-  const githubComment = eventData.comment?.body |
-
-| eventData.pull_request?.body |
-| "";
+  let issueNumber = process.env.ISSUE_NUMBER;
+  if (!issueNumber && eventData.issue) issueNumber = eventData.issue.number;
+  if (!issueNumber && eventData.pull_request) issueNumber = eventData.pull_request.number;
+  issueNumber = issueNumber? parseInt(issueNumber) : null;
   
-  const activeInstruction = (source === "TELEGRAM_EXECUTOR")? manualCmd : (githubComment |
-
-| "Audit and Systematic Enhancement.");
+  const prDiff = process.env.PR_DIFF? process.env.PR_DIFF : "";
+  const eventName = process.env.GITHUB_EVENT_NAME? process.env.GITHUB_EVENT_NAME : "";
+  
+  let githubComment = "";
+  if (eventData.comment) githubComment = eventData.comment.body;
+  if (!githubComment && eventData.pull_request) githubComment = eventData.pull_request.body;
+  
+  let activeInstruction = "Audit and Systematic Enhancement.";
+  if (source === "TELEGRAM_EXECUTOR" && manualCmd) {
+    activeInstruction = manualCmd;
+  } else if (githubComment) {
+    activeInstruction = githubComment;
+  }
 
   if (activeInstruction === "/undo") {
     try {
@@ -209,7 +212,8 @@ export async function main() {
 
     PENTING: Jika file sudah sempurna, respon hanya dengan "PASS". DILARANG memasukkan kode di baris PATH.`;
 
-  addToTelegramBuffer(`🚀 *Autonomous Manager Engine Active:* Memproses instruksi: \`${activeInstruction}\``);
+  console.log(`🚀 Autonomous Manager Engine Active: ${owner}/${repo}`);
+  addToTelegramBuffer(`🛠️ *Manager Active:* Memproses instruksi: \`${activeInstruction}\``);
 
   const allFiles = await getAllFilesRecursive(owner, repo);
   const visualTree = generateVisualTree(allFiles);
@@ -222,8 +226,14 @@ export async function main() {
         const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
         const currentContent = Buffer.from(fData.content, 'base64').toString();
 
+        // PERBAIKAN FATAL: Menggunakan new Array agar tidak hilang di parser
+        const promptMessages = new Array(
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `REPO_STRUCTURE:\n${visualTree}\n\nTARGET_FILE: ${file.path}\nCONTENT:\n${currentContent}\n\nEVENT: ${eventName}\nCONTEXT: ${prDiff? prDiff : bodyContent}\nCOMMAND: ${activeInstruction}` }
+        );
+
         const response = await client.chat.completions.create({
-          messages:,
+          messages: promptMessages,
           model: modelName,
           temperature: 0.1 
         });
@@ -231,10 +241,11 @@ export async function main() {
         const aiRes = response.choices.message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
-        // PERBAIKAN SINTAKSIS LABEL: Regex dan Split dikembalikan utuh
+        // PERBAIKAN LABEL REGEX
         const labelMatch = aiRes.match(/\/);
         if (labelMatch && issueNumber) {
-          const labels = labelMatch.[1]split(',').map(l => l.trim().toLowerCase());
+          const labelString = labelMatch[1];
+          const labels = labelString.split(',').map(l => l.trim().toLowerCase());
           await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
         }
         auditSummary.success++;
@@ -253,4 +264,3 @@ main().catch(err => {
   telegramBuffer += `\n⚠️ *System Error:* ${err.message}`;
   flushTelegram();
 });
-        
