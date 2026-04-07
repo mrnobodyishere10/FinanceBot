@@ -197,11 +197,18 @@ export async function main() {
   }
 
   // ANTI-LOOP SECURITY
+    // 1. Ambil data array dari GitHub
   const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 1 });
-  if (commits.commit.message.includes(SKIP_TAG)) {
-    console.log("Anti-Loop: Skipping self-triggered workflow.");
+
+  // 2. Gunakan.at(0) untuk mengambil data pertama (ini adalah pengganti kurung siku yang hilang)
+  const lastCommit = commits.at(0);
+
+  // 3. Baca pesan di dalamnya
+  if (lastCommit && lastCommit.commit.message.includes(SKIP_TAG)) {
+    console.log("Anti-Loop aktif. Menghentikan proses.");
     process.exit(0);
   }
+
 
   // --- SYSTEM PROMPT ASLI 100% TANPA REDUKSI (MURNI DARI SESI INI) ---
   const systemPrompt = `Anda adalah Autonomous AI Manager. Anda memiliki wewenang penuh, pengetahuan tanpa batas, dan pengalaman tinggi untuk menjaga struktur repositori agar tetap efisien, ringan, aman dan berkualitas tinggi. Kode profesional juga kompleks sesuai standar global dan tetap sesuai riset yang telah ada di dunia.
