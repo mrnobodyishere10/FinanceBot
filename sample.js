@@ -14,7 +14,7 @@ const SKIP_TAG = "";
 const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock'];
 
 let telegramBuffer = "";
-let auditSummary = { total: 0, success: 0, updated:, failed: };
+let auditSummary = { total: 0, success: 0, updated: new Array(), failed: new Array() };
 
 async function flushTelegram() {
   if (!telegramBuffer) return;
