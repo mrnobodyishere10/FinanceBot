@@ -15,7 +15,7 @@ const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.jso
 
 let telegramBuffer = "";
 // PERBAIKAN SINTAKSIS: Array dikembalikan dengan benar
-let auditSummary = { total: 0, success: 0, updated:, failed: };
+let auditSummary = { total: 0, success: 0, updated: failed: };
 
 async function flushTelegram() {
   if (!telegramBuffer) return;
