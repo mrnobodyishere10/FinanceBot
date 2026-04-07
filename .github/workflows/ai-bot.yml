@@ -24,11 +24,11 @@ permissions:
 
 jobs:
   execute-autonomous:
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'pull_request' ||
-      github.event_name == 'push' ||
-      startsWith(github.event.comment.body, '/')
+    if: github.event_name == 'workflow_dispatch' |
+
+| github.event_name == 'pull_request' |
+| github.event_name == 'push' |
+| startsWith(github.event.comment.body, '/')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -38,7 +38,9 @@ jobs:
 
       - name: Fetch PR Diff
         if: github.event_name == 'pull_request'
-        run: git diff origin/${{ github.base_ref }} HEAD > pr.diff || true
+        run: git diff origin/${{ github.base_ref }} HEAD > pr.diff |
+
+| true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -57,8 +59,9 @@ jobs:
           CMD_SOURCE: ${{ github.event.inputs.source }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
           GITHUB_HEAD_REF: ${{ github.head_ref }}
-          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+          ISSUE_NUMBER: ${{ github.event.issue.number |
+
+| github.event.pull_request.number }}
         run: |
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
-          
