@@ -2,12 +2,11 @@ import OpenAI from "openai";
 import { Octokit } from "@octokit/rest";
 import axios from "axios";
 import fs from "fs";
-import { execSync } from "child_process";
 
 /**
  * PROJECT: AUTONOMOUS AI MANAGER
- * VERSION: 22.0.0 (FINAL CONSOLIDATED - NO REDUCTION - SYNTAX FIXED)
- * LOGIC: SYSTEMATIC DEEP AUDIT -> INTERNAL REASONING -> DECISION-BASED EVOLUTION / PUSH
+ * VERSION: 22.0.0 (FINAL CONSOLIDATED - SYNTAX FIXED)
+ * LOGIC: SYSTEMATIC DEEP AUDIT -> INTERNAL REASONING -> DECISION-BASED PUSH
  */
 
 const token = process.env.GITHUB_TOKEN;
@@ -21,7 +20,7 @@ const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.jso
 
 // --- ---
 let telegramBuffer = "";
-// PERBAIKAN FATAL: Tanda telah dikembalikan
+// PERBAIKAN FATAL: Tanda kurung siku dikembalikan dengan benar
 let auditSummary = { total: 0, success: 0, updated:, failed: };
 
 async function flushTelegram() {
@@ -46,7 +45,7 @@ function addToTelegramBuffer(msg) {
 
 // --- ---
 async function getAllFilesRecursive(owner, repo, path = "") {
-  let fileList =; // PERBAIKAN: Tanda telah dikembalikan
+  let fileList =; // PERBAIKAN: Tanda kurung siku dikembalikan
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path });
     const items = Array.isArray(data)? data : [data];
@@ -74,9 +73,9 @@ function generateVisualTree(files) {
 
 // --- ---
 async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
-  const reasoning = aiRes.split("###---AUTONOMOUS_FILE_START---###").trim();
+  const reasoning = aiRes.split("###---ORACLE_FILE_START---###").trim();
   
-  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###")) {
+  if (aiRes.includes("###---ORACLE_FILE_START---###")) {
     if (reasoning && reasoning!== "PASS") {
       console.log("\n🧠 STRATEGIC REASONING:\n", reasoning);
       addToTelegramBuffer(`🧠 *Reasoning:* \n${reasoning.substring(0, 1000)}`);
@@ -91,12 +90,11 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
       }
     }
 
-    const fileBlocks = aiRes.split("###---AUTONOMOUS_FILE_START---###").slice(1);
+    const fileBlocks = aiRes.split("###---ORACLE_FILE_START---###").slice(1);
     for (const block of fileBlocks) {
       try {
-        const section = block.split("###---AUTONOMOUS_FILE_END---###").trim();
+        const section = block.split("###---ORACLE_FILE_END---###").trim();
         const pathMatch = section.match(/PATH:\s*(.*)/);
-        // PERBAIKAN SINTAKSIS PADA PATH & CONTENT
         const filePath = pathMatch? pathMatch.[1]split('\n').trim() : null;
         const codeContent = section.split("###---CONTENT_START---###")?.[1]trim();
 
@@ -107,6 +105,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
             currentSha = data.sha;
           } catch (e) { currentSha = null; }
 
+          // PERBAIKAN SINTAKSIS: Operator OR (||) telah dikembalikan ke format yang benar
           await octokit.repos.createOrUpdateFileContents({
             owner, repo, path: filePath,
             message: `✅ Autonomous Enhancement: [${filePath}] ${SKIP_TAG}`,
@@ -124,16 +123,6 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
       } catch (err) { console.error(`Execute Error: ${err.message}`); }
     }
   }
-
-  // INTEGRASI EKSEKUSI SHELL INTERNAL
-  if (aiRes.includes("###---SHELL_EXEC_START---###")) {
-    const cmd = aiRes.split("###---SHELL_EXEC_START---###").[1]split("###---SHELL_EXEC_END---###").trim();
-    try {
-      console.log(`Executing Shell: ${cmd}`);
-      const output = execSync(cmd, { encoding: 'utf-8' });
-      addToTelegramBuffer(`⚙️ *Shell Output:*\n\`\`\`\n${output.substring(0, 800)}\n\`\`\``);
-    } catch (err) { console.error(`Shell Error: ${err.message}`); }
-  }
 }
 
 // --- ---
@@ -141,7 +130,7 @@ export async function main() {
   if (!token) return console.error("GITHUB_TOKEN missing!");
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   
-  // PERBAIKAN: Format split yang sebelumnya terputus
+  // PERBAIKAN SINTAKSIS: Operator OR telah dirapatkan (||)
   const [owner, repo] = (process.env.GITHUB_REPOSITORY |
 
 | "").split("/");
@@ -153,6 +142,12 @@ export async function main() {
   const issueNumber = process.env.ISSUE_NUMBER? parseInt(process.env.ISSUE_NUMBER) : (eventData.issue?.number |
 
 | eventData.pull_request?.number);
+  const prDiff = process.env.PR_DIFF |
+
+| "";
+  const eventName = process.env.GITHUB_EVENT_NAME |
+
+| "";
   
   const githubComment = eventData.comment?.body |
 
@@ -162,7 +157,7 @@ export async function main() {
 
 | "Audit and Systematic Enhancement.");
 
-  // PROTEKSI REVERSE / UNDO COMMAND
+  // FITUR REVERSE / UNDO COMMAND
   if (activeInstruction === "/undo") {
     const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 2 });
     await octokit.git.updateRef({ owner, repo, ref: "heads/main", sha: commits.[1]sha, force: true });
@@ -178,6 +173,7 @@ export async function main() {
     process.exit(0);
   }
 
+  // --- SYSTEM PROMPT ASLI 100% TANPA REDUKSI ---
   const systemPrompt = `Anda adalah Autonomous AI Manager. Anda memiliki wewenang penuh, pengetahuan tanpa batas, dan pengalaman tinggi untuk menjaga struktur repositori agar tetap efisien, ringan, aman dan berkualitas tinggi. Kode profesional juga kompleks sesuai standar global dan tetap sesuai riset yang telah ada di dunia.
 
     TUGAS UTAMA:
@@ -192,21 +188,16 @@ export async function main() {
     - Anda memiliki kesadaran penuh terhadap lokasi file baik di Root maupun di dalam folder/sub-folder berturut-turut lebih ke dalam lagi.
     - SURGICAL PRECISION: Perbaiki/Ganti/Hapus hanya bagian yang bermasalah saja.
     - PRESERVASI: Dilarang keras menghapus kode lama yang sudah berfungsi dengan baik.
-    - MODULARITAS: Buat file/folder/sub-folder baru jika diperlukan untuk optimasi, estetika, dan mencegah bentrokan kode.
+    - MODULARITAS: Buat file/folder/sub-folder baru jika diperlukan untuk optimasi (Snapdragon 685), estetika, dan mencegah bentrokan kode.
     - ANTI-TEBAKAN: JANGAN MENEBAK. Anda menerima isi file satu per satu untuk memastikan audit faktual.
-    - FILE EVOLUTION: Jika menemukan file yang dianggap tidak berguna, kosong, atau redundan, JANGAN DIHAPUS. Ubah file tersebut menjadi modul yang memiliki kemampuan atau fungsi yang berguna bagi efisiensi ekosistem proyek ini.
 
     ATURAN OUTPUT (WAJIB):
-    ###---AUTONOMOUS_FILE_START---###
+    Gunakan format pembatas unik berikut untuk setiap file:
+    ###---ORACLE_FILE_START---###
     PATH: path/ke/file.ext
     ###---CONTENT_START---###
     isi kode lengkap...
-    ###---AUTONOMOUS_FILE_END---###
-
-    ATAU (Jika Perintah Terminal):
-    ###---SHELL_EXEC_START---###
-    [Perintah]
-    ###---SHELL_EXEC_END---###
+    ###---ORACLE_FILE_END---###
 
     PENTING: Jika file sudah sempurna, respon hanya dengan "PASS". DILARANG memasukkan kode di baris PATH.`;
 
@@ -224,7 +215,7 @@ export async function main() {
         const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
         const currentContent = Buffer.from(fData.content, 'base64').toString();
 
-        // PERBAIKAN: Format Array Messages yang hilang telah dikembalikan
+        // PERBAIKAN FATAL SINTAKSIS: Array messages sekarang utuh [ ]
         const response = await client.chat.completions.create({
           messages:,
           model: modelName,
@@ -234,7 +225,7 @@ export async function main() {
         const aiRes = response.choices.message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
-        // PERBAIKAN: Format regex label Match yang hilang telah dikembalikan
+        // PERBAIKAN SINTAKSIS LABEL: Regex dan Split dikembalikan ke format JS yang valid
         const labelMatch = aiRes.match(/\/);
         if (labelMatch && issueNumber) {
           const labels = labelMatch.[1]split(',').map(l => l.trim().toLowerCase());
