@@ -177,12 +177,17 @@ export async function main() {
   // PERBAIKAN FATAL: ANTI-LOOP HANYA BERLAKU JIKA PEMICUNYA ADALAH 'PUSH'
   // Jika Anda mengirim perintah dari Telegram, bot tetap akan jalan meskipun commit terakhir dari bot.
   if (eventName === "push") {
-    const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 1 });
-    const lastCommit = commits.at(0);
-    if (commits && commits.length > 0 && commits.commit.message.includes(SKIP_TAG)) {
-      console.log("Anti-Loop: Skipping self-triggered workflow.");
-      process.exit(0);
-    }
+     // 1. Ambil data array dari GitHub
+  const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 1 });
+
+  // 2. Gunakan.at(0) untuk mengambil data pertama (ini adalah pengganti kurung siku yang hilang)
+  const lastCommit = commits.at(0);
+
+  // 3. Baca pesan di dalamnya
+  if (lastCommit && lastCommit.commit.message.includes(SKIP_TAG)) {
+    console.log("Anti-Loop aktif. Menghentikan proses.");
+    process.exit(0);
+  }
   }
 
   // --- SYSTEM PROMPT ASLI 100% TANPA REDUKSI (MURNI DARI SESI INI) ---
