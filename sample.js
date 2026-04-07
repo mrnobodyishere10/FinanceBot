@@ -246,9 +246,11 @@ export async function main() {
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
         const labelMatch = aiRes.match(labelRegex);
-        if (labelMatch && issueNumber) {
-          const labels = labelMatch.[1]split(',').map(l => l.trim().toLowerCase());
-          await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
+        if (labelMatch) {
+          if (issueNumber) {
+            const labelString = labelMatch.at(1);
+            const labels = labelString.split(',').map(l => l.trim().toLowerCase());
+            await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
         }
         auditSummary.success++;
       } catch (err) { auditSummary.failed.push(`${file.path}: ${err.message}`); }
