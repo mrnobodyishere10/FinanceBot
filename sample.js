@@ -66,9 +66,7 @@ function generateVisualTree(files) {
 async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   const reasoning = aiRes.split("###---AUTONOMOUS_FILE_START---###").trim();
   
-  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###") |
-
-| aiRes.includes("###---SHELL_EXEC_START---###")) {
+  if (aiRes.includes("###---AUTONOMOUS_FILE_START---###") || aiRes.includes("###---SHELL_EXEC_START---###")) {
     if (reasoning && reasoning!== "PASS") {
       console.log("\n--- AI REASONING ---\n", reasoning);
       addToTelegramBuffer(`🧠 *Reasoning:* \n${reasoning.substring(0, 1000)}`);
@@ -114,9 +112,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
             owner, repo, path: filePath,
             message: `✅ Autonomous Enhancement: [${filePath}] - ${changeLog} ${SKIP_TAG}`,
             content: Buffer.from(codeContent).toString('base64'),
-            sha: currentSha |
-
-| undefined,
+            sha: currentSha || undefined,
             branch: finalBranch
           });
           addToTelegramBuffer(`🎯 *Managed:* \`${filePath}\` updated.\n📝 *Changelog:* ${changeLog}`);
@@ -152,19 +148,13 @@ export async function main() {
   const manualCmd = process.env.MANUAL_CMD; 
   const source = process.env.CMD_SOURCE;
   
-  let issueNumberRaw = process.env.ISSUE_NUMBER |
-
-| eventData.issue?.number |
-| eventData.pull_request?.number;
+  let issueNumberRaw = process.env.ISSUE_NUMBER || eventData.issue?.number || eventData.pull_request?.number;
   const issueNumber = issueNumberRaw? parseInt(issueNumberRaw) : null;
   
   const prDiff = process.env.PR_DIFF? process.env.PR_DIFF : "";
   const eventName = process.env.GITHUB_EVENT_NAME? process.env.GITHUB_EVENT_NAME : "";
   
-  let githubComment = eventData.comment?.body |
-
-| eventData.pull_request?.body |
-| "";
+  let githubComment = eventData.comment?.body || eventData.pull_request?.body || "";
   let activeInstruction = "Audit and Systematic Enhancement.";
   
   if (source === "TELEGRAM_EXECUTOR" && manualCmd) {
