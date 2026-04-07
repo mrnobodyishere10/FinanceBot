@@ -24,11 +24,11 @@ permissions:
 
 jobs:
   execute-autonomous:
-    if: github.event_name == 'workflow_dispatch' |
+    if: ${{ github.event_name == 'workflow_dispatch' |
 
 | github.event_name == 'pull_request' |
 | github.event_name == 'push' |
-| startsWith(github.event.comment.body, '/')
+| startsWith(github.event.comment.body, '/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -65,3 +65,4 @@ jobs:
         run: |
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
+          
