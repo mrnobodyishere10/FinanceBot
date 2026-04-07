@@ -233,8 +233,14 @@ export async function main() {
       try {
         const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
         const currentContent = Buffer.from(fData.content, 'base64').toString();
-
+        let bodyContent = "Audit berkala";
         const promptContext = prDiff? prDiff : bodyContent;
+
+        // Format array yang kebal bug UI
+        const promptMessages = new Array(
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `REPO_STRUCTURE:\n${visualTree}\n\nTARGET_FILE: ${file.path}\nCONTENT:\n${currentContent}\n\nEVENT: ${eventName}\nCONTEXT: ${promptContext}\nCOMMAND: ${activeInstruction}` }
+        );
 
         const response = await client.chat.completions.create({
           messages: promptMessages,
@@ -242,15 +248,17 @@ export async function main() {
           temperature: 0.1 
         });
 
-        const aiRes = response.choices.message.content;
+        const aiRes = response.choices.at(0).message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
+        const labelRegex = new RegExp("\\");
         const labelMatch = aiRes.match(labelRegex);
         if (labelMatch) {
           if (issueNumber) {
             const labelString = labelMatch.at(1);
             const labels = labelString.split(',').map(l => l.trim().toLowerCase());
             await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
+          }
         }
         auditSummary.success++;
       } catch (err) { auditSummary.failed.push(`${file.path}: ${err.message}`); }
@@ -268,4 +276,5 @@ main().catch(err => {
   telegramBuffer += `\n⚠️ *System Error:* ${err.message}`;
   flushTelegram();
 });
-                                     
+
+    
