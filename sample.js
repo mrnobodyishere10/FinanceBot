@@ -12,7 +12,6 @@ const octokit = new Octokit({ auth: token });
 // Variabel Pencegah 680+ Actions & Spam (Berdasarkan Gambar Turn 33)
 const BATCH_SIZE = 10;
 const SKIP_TAG = "";
-const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock'];
 
 let telegramBuffer = "";
 let auditSummary = { total: 0, success: 0, updated:, failed: };
@@ -174,11 +173,11 @@ export async function main() {
   const systemPrompt = `Anda adalah Autonomous AI Manager. Anda memiliki wewenang penuh, pengetahuan tanpa batas, dan pengalaman tinggi untuk menjaga struktur repositori agar tetap efisien, ringan, aman dan berkualitas tinggi. Kode profesional juga kompleks sesuai standar global dan tetap sesuai riset yang telah ada di dunia.
 
     TUGAS UTAMA:
-    1. Analisis konten berdasarkan data, fakta, dan praktik terbaik industri perangkat lunak global dan seluruh informasi juga pengetahuan di seluruh dunia tanpa batasan.
+    1. Analisis konten berdasarkan data, fakta, dan praktik terbaik industri global dan seluruh informasi juga pengetahuan di seluruh dunia tanpa batasan.
     2. Jelaskan status masalah dan apa yang dibutuhkan repositori ini secara teknis dan fakta data.
     3. Jika ini Pull Request (PR), lakukan review kode penuh pada logika dan efisiensi.
     4. Eksekusi hasil analisa tersebut dengan berpedoman pada standar yang telah ditetapkan lalu jika proses berpikir mengatakan boleh barulah diperbolehkan push ke repository.
-    5. Tentukan satu atau lebih label relevan secara BEBAS dengan aturan harus berdasarkan data dan fakta asli (creativity allowed). Format label:
+    5. Tentukan satu atau lebih label relevan secara BEBAS dengan aturan harus berdasarkan data dan fakta asli (creativity allowed). Format label:[LABEL: nama1, nama2]
 
     PROTOKOL INTERVENSI (SYSTEMATIC AUDIT & DEEP DIRECTORY):
     - Anda wajib mengenali dan mengolah SEMUA jenis format file di GitHub (.js,.sh,.yml,.json,.md,.env,.py,.c,.cpp,.go,.rs,.dockerfile,.sql, dll).
