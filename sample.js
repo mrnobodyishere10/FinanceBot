@@ -166,7 +166,7 @@ export async function main() {
     try {
       const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 2 });
       if (commits.length > 1) {
-        await octokit.git.updateRef({ owner, repo, ref: "heads/main", sha: commits.[1]sha, force: true });
+        await octokit.git.updateRef({ owner, repo, ref: "heads/main", sha: commits.at(1).sha, force: true });
         addToTelegramBuffer("🔄 **System Manager:** Commit terakhir berhasil dibatalkan (Reverted).");
         await flushTelegram();
       }
