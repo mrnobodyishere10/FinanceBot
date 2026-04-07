@@ -14,7 +14,7 @@ const SKIP_TAG = "";
 const IGNORE_LIST = ['node_modules', '.git', 'dist', '.cache', 'package-lock.json', 'yarn.lock'];
 
 let telegramBuffer = "";
-// PERBAIKAN: Array menggunakan kurung siku standar yang valid
+// PERBAIKAN: Menggunakan array kurung siku yang benar agar tidak error
 let auditSummary = { total: 0, success: 0, updated:, failed: };
 
 async function flushTelegram() {
@@ -93,10 +93,10 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
         
         // PERBAIKAN FATAL: Menghapus titik sebelum kurung siku [1]
         const pathMatch = section.match(/PATH:\s*(.*)/);
-        const filePath = pathMatch? pathMatch.[1]split('\n').trim() : null;
+        const filePath = pathMatch && pathMatch?[1] pathMatch.[1]split('\n').trim() : null;
         
         const changelogMatch = section.match(/CHANGELOG:\s*(.*)/);
-        const changeLog = changelogMatch? changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
+        const changeLog = changelogMatch && changelogMatch?[1] changelogMatch.[1]split('\n').trim() : "Systematic Precision Update";
         
         const codeSplit = section.split("###---CONTENT_START---###");
         const codeContent = codeSplit.length > 1? codeSplit.[1]trim() : null;
@@ -109,13 +109,14 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
           } catch (e) { currentSha = null; }
 
           const finalBranch = branch? branch : 'main';
-          const finalSha = currentSha? currentSha : undefined;
 
           await octokit.repos.createOrUpdateFileContents({
             owner, repo, path: filePath,
             message: `✅ Autonomous Enhancement: [${filePath}] - ${changeLog} ${SKIP_TAG}`,
             content: Buffer.from(codeContent).toString('base64'),
-            sha: finalSha,
+            sha: currentSha |
+
+| undefined,
             branch: finalBranch
           });
           addToTelegramBuffer(`🎯 *Managed:* \`${filePath}\` updated.\n📝 *Changelog:* ${changeLog}`);
@@ -126,7 +127,6 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   }
 
   if (aiRes.includes("###---SHELL_EXEC_START---###")) {
-    // PERBAIKAN FATAL: Menghapus titik sebelum kurung siku [1]
     const cmdSplit = aiRes.split("###---SHELL_EXEC_START---###")[1];
     if (cmdSplit) {
       const cmd = cmdSplit.split("###---SHELL_EXEC_END---###").trim();
@@ -143,7 +143,9 @@ export async function main() {
   if (!token) return console.error("GITHUB_TOKEN missing!");
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   
-  // PERBAIKAN: Operator OR (||) dipastikan rapat
+  // PERBAIKAN: Operator OR ditulis dengan |
+
+| yang rapat
   const repoString = process.env.GITHUB_REPOSITORY |
 
 | "";
@@ -154,7 +156,7 @@ export async function main() {
   const manualCmd = process.env.MANUAL_CMD; 
   const source = process.env.CMD_SOURCE;
   
-  let issueNumberRaw = process.env.ISSUE_NUMBER |
+  const issueNumberRaw = process.env.ISSUE_NUMBER |
 
 | eventData.issue?.number |
 | eventData.pull_request?.number;
@@ -166,11 +168,11 @@ export async function main() {
   const eventName = process.env.GITHUB_EVENT_NAME |
 
 | "";
-  
-  let githubComment = eventData.comment?.body |
+  const githubComment = eventData.comment?.body |
 
 | eventData.pull_request?.body |
 | "";
+  let bodyContent = "Audit berkala"; // Fallback context
   
   let activeInstruction = "Audit and Systematic Enhancement.";
   if (source === "TELEGRAM_EXECUTOR" && manualCmd) {
@@ -183,7 +185,7 @@ export async function main() {
   if (activeInstruction === "/undo") {
     try {
       const { data: commits } = await octokit.repos.listCommits({ owner, repo, per_page: 2 });
-      // PERBAIKAN FATAL: Menghapus titik sebelum kurung siku [1]
+      // PERBAIKAN FATAL: Menghapus titik sebelum kurung siku
       await octokit.git.updateRef({ owner, repo, ref: "heads/main", sha: commits.[1]sha, force: true });
       addToTelegramBuffer("🔄 **System Manager:** Commit terakhir berhasil dibatalkan (Reverted).");
       await flushTelegram();
@@ -246,6 +248,7 @@ export async function main() {
         const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
         const currentContent = Buffer.from(fData.content, 'base64').toString();
 
+        // PERBAIKAN: Format Array Messages dipastikan menggunakan format standar JavaScript
         const promptMessages =;
 
         const response = await client.chat.completions.create({
@@ -257,7 +260,7 @@ export async function main() {
         const aiRes = response.choices.message.content;
         await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
-        // PERBAIKAN SINTAKSIS LABEL: Menghapus titik sebelum kurung siku [1]
+        // PERBAIKAN SINTAKSIS LABEL
         const labelRegex = /\/;
         const labelMatch = aiRes.match(labelRegex);
         if (labelMatch && issueNumber) {
