@@ -37,10 +37,10 @@ function addToTelegramBuffer(msg) {
 }
 
 async function getAllFilesRecursive(owner, repo, path = "") {
-  let fileList =;
+  let fileList = new Array();
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path });
-    const items = Array.isArray(data)? data : [data];
+    const items = Array.isArray(data)? data : new Array(data);
     for (const item of items) {
       if (IGNORE_LIST.includes(item.name)) continue;
       if (item.type === "dir") {
