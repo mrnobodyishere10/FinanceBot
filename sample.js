@@ -225,7 +225,8 @@ export async function main() {
           "replace": "kode baru yang diperbaiki"
         }
       ]
-    }`;
+    }
+  
     ###---AUTONOMOUS_FILE_START---###
     PATH: path/ke/file.ext
     CHANGELOG: [Penjelasan teknis singkat tentang perbaikan]
