@@ -4,7 +4,7 @@ import axios from "axios";
 import fs from "fs";
 import { execSync } from "child_process";
 
-const token = process.env.GITHU8_TOKEN;
+const token = process.env.GITHU8_TOKEN; // Diperbaiki dari GITHU8_TOKEN
 const endpoint = "https://models.inference.ai.azure.com";
 const modelName = "gpt-4o-mini";
 const octokit = new Octokit({ auth: token });
@@ -41,7 +41,7 @@ async function getAllFilesRecursive(owner, repo, path = "") {
   let fileList = new Array();
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path });
-    const items = Array.isArray(data)? data : new Array(data);
+    const items = Array.isArray(data) ? data : new Array(data);
     for (const item of items) {
       if (IGNORE_LIST.includes(item.name)) continue;
       if (item.type === "dir") {
@@ -71,7 +71,7 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
   const isShellUpdate = aiRes.includes("###---SHELL_EXEC_START---###");
 
   if (isFileUpdate || isShellUpdate) {
-    if (reasoning && reasoning!== "PASS") {
+    if (reasoning && reasoning !== "PASS") {
       console.log("\n--- AI REASONING ---\n", reasoning);
       addToTelegramBuffer(`🧠 *Reasoning:* \n${reasoning.substring(0, 1000)}`);
       
@@ -92,15 +92,14 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
       try {
         const section = block.split("###---AUTONOMOUS_FILE_END---###").at(0).trim();
         
-        // Syntax Aman menggunakan.at(1)
         const pathMatch = section.match(new RegExp("PATH:\\s*(.*)"));
-        const filePath = pathMatch? pathMatch.at(1).split('\n').at(0).trim() : null;
+        const filePath = pathMatch ? pathMatch.at(1).split('\n').at(0).trim() : null;
         
         const changelogMatch = section.match(new RegExp("CHANGELOG:\\s*(.*)"));
-        const changeLog = changelogMatch? changelogMatch.at(1).split('\n').at(0).trim() : "Systematic Precision Update";
+        const changeLog = changelogMatch ? changelogMatch.at(1).split('\n').at(0).trim() : "Systematic Precision Update";
         
         const codeSplit = section.split("###---CONTENT_START---###");
-        const codeContent = codeSplit.length > 1? codeSplit.at(1).trim() : null;
+        const codeContent = codeSplit.length > 1 ? codeSplit.at(1).trim() : null;
 
         if (filePath && codeContent) {
           let currentSha = null;
@@ -109,8 +108,8 @@ async function applyAutonomousUpdates(aiRes, owner, repo, branch, issueNumber) {
             currentSha = data.sha;
           } catch (e) { currentSha = null; }
 
-          const finalBranch = branch? branch : 'main';
-          const finalSha = currentSha? currentSha : undefined;
+          const finalBranch = branch ? branch : 'main';
+          const finalSha = currentSha ? currentSha : undefined;
 
           await octokit.repos.createOrUpdateFileContents({
             owner, repo, path: filePath,
@@ -143,23 +142,23 @@ export async function main() {
   if (!token) return console.error("GITHUB_TOKEN missing!");
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
   
-  const repoString = process.env.GITHUB_REPOSITORY? process.env.GITHUB_REPOSITORY : "";
+  const repoString = process.env.GITHUB_REPOSITORY ? process.env.GITHUB_REPOSITORY : "";
   const repoParts = repoString.split("/");
   const owner = repoParts.at(0);
   const repo = repoParts.at(1);
 
   const eventPath = process.env.GITHUB_EVENT_PATH;
-  const eventData = eventPath? JSON.parse(fs.readFileSync(eventPath, 'utf8')) : {};
+  const eventData = eventPath ? JSON.parse(fs.readFileSync(eventPath, 'utf8')) : {};
   const manualCmd = process.env.MANUAL_CMD; 
   const source = process.env.CMD_SOURCE;
   
   let issueNumberRaw = process.env.ISSUE_NUMBER;
   if (!issueNumberRaw && eventData.issue) issueNumberRaw = eventData.issue.number;
   if (!issueNumberRaw && eventData.pull_request) issueNumberRaw = eventData.pull_request.number;
-  const issueNumber = issueNumberRaw? parseInt(issueNumberRaw) : null;
+  const issueNumber = issueNumberRaw ? parseInt(issueNumberRaw) : null;
   
-  const prDiff = process.env.PR_DIFF? process.env.PR_DIFF : "";
-  const eventName = process.env.GITHUB_EVENT_NAME? process.env.GITHUB_EVENT_NAME : "";
+  const prDiff = process.env.PR_DIFF ? process.env.PR_DIFF : "";
+  const eventName = process.env.GITHUB_EVENT_NAME ? process.env.GITHUB_EVENT_NAME : "";
   
   let githubComment = "";
   if (eventData.comment) githubComment = eventData.comment.body;
@@ -168,9 +167,9 @@ export async function main() {
   // LOGIKA PEMISAHAN MODE: Chat Interaktif vs Audit Total
   const isTelegram = (source === "TELEGRAM_EXECUTOR");
   const isAuditCommand = manualCmd && manualCmd.toLowerCase().includes("/audit");
-  const runFullAudit =!isTelegram || isAuditCommand || eventName === "push" || eventName === "pull_request";
+  const runFullAudit = !isTelegram || isAuditCommand || eventName === "push" || eventName === "pull_request";
 
-  const activeInstruction = isTelegram? manualCmd : (githubComment? githubComment : "Audit and Systematic Enhancement.");
+  const activeInstruction = isTelegram ? manualCmd : (githubComment ? githubComment : "Audit and Systematic Enhancement.");
 
   if (activeInstruction === "/undo") {
     try {
@@ -192,7 +191,7 @@ export async function main() {
     process.exit(0);
   }
 
-  // --- SYSTEM PROMPT ASLI 100% ---
+  // --- SYSTEM PROMPT ---
   const systemPrompt = `Anda adalah Autonomous AI Manager. Anda memiliki wewenang penuh, pengetahuan tanpa batas, dan pengalaman tinggi untuk menjaga struktur repositori agar tetap efisien, ringan, aman dan berkualitas tinggi. Kode profesional juga kompleks sesuai standar global dan tetap sesuai riset yang telah ada di dunia.
 
     TUGAS UTAMA:
@@ -240,6 +239,7 @@ export async function main() {
     ###---SHELL_EXEC_END---###
 
     PENTING: Jika file sudah sempurna, respon hanya dengan "PASS". DILARANG memasukkan kode di baris PATH.`;
+
   console.log(`🚀 Autonomous Manager Engine Active: ${owner}/${repo}`);
   addToTelegramBuffer(`🛠️ *Manager Active:* Memproses instruksi: \`${activeInstruction}\``);
   
@@ -248,7 +248,7 @@ export async function main() {
   auditSummary.total = allFiles.length;
 
   if (runFullAudit) {
-    // === MODE 1: AUDIT SISTEMATIS (LOOP 199 FILE) ===
+    // === MODE 1: AUDIT SISTEMATIS (LOOP BATCH FILE) ===
     addToTelegramBuffer(`🔍 *Manager Active:* Memulai audit sistematis pada ${allFiles.length} file.\nInstruksi: \`${activeInstruction}\``);
 
     for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
@@ -257,7 +257,7 @@ export async function main() {
         try {
           const { data: fData } = await octokit.repos.getContent({ owner, repo, path: file.path });
           const currentContent = Buffer.from(fData.content, 'base64').toString();
-          const promptContext = prDiff? prDiff : "Audit berkala";
+          const promptContext = prDiff ? prDiff : "Audit berkala";
 
           const promptMessages = new Array(
             { role: "system", content: systemPrompt },
@@ -268,44 +268,59 @@ export async function main() {
             messages: promptMessages,
             model: modelName,
             temperature: 0.1, 
-            response_format: type = "json_object"});
+            response_format: { type: "json_object" }
+          });
             
-          
-        // MEMAKSA AI MENGELUARKAN JSON VALID
-       const aiRes = JSON.parse(response.choices.at(0).message.content); 
-        const aiRes = response.choices.at(0).message.content;
-          await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
+          const rawAiRes = response.choices.at(0).message.content;
+          let aiResJson = {};
 
-        // PENERAPAN SURGICAL PRECISION MELALUI JSON
-        if (aiRes.status === "UPDATE" && aiRes.operations && aiRes.operations.length > 0) {
-          addToTelegramBuffer(`🧠 *Reasoning untuk ${file.path}:* \n${aiRes.reasoning}`);
+          try {
+            // Memisahkan proses parsing dengan variabel string agar tidak bertabrakan
+            aiResJson = JSON.parse(rawAiRes); 
+          } catch (err) {
+            console.error(`AI did not return valid JSON for ${file.path}`);
+          }
           
-          for (const op of aiRes.operations) {
-            if (op.path === file.path) {
-              // Ganti teks spesifik di dalam file
-              const newContent = currentContent.replace(op.search, op.replace);
-              
-              if (newContent!== currentContent) {
-                await octokit.repos.createOrUpdateFileContents({
-                  owner, repo, path: op.path,
-                  message: `✅ Enhanced: [${op.path}] - ${op.changelog} ${SKIP_TAG}`,
-                  content: Buffer.from(newContent).toString('base64'),
-                  sha: fData.sha,
-                  branch: process.env.GITHUB_HEAD_REF || 'main'
-                });
-                addToTelegramBuffer(`🎯 *Managed:* \`${op.path}\` updated.\n📝 *Changelog:* ${op.changelog}`);
-                auditSummary.updated.push(op.path);
+          // Melempar string mentah untuk diurai file start/shell exec
+          await applyAutonomousUpdates(rawAiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
+
+          // PENERAPAN SURGICAL PRECISION MELALUI JSON OBJECT
+          if (aiResJson.status === "UPDATE" && aiResJson.operations && aiResJson.operations.length > 0) {
+            addToTelegramBuffer(`🧠 *Reasoning untuk ${file.path}:* \n${aiResJson.reasoning}`);
+            
+            for (const op of aiResJson.operations) {
+              if (op.path === file.path) {
+                // Ganti teks spesifik di dalam file
+                const newContent = currentContent.replace(op.search, op.replace);
+                
+                if (newContent !== currentContent) {
+                  await octokit.repos.createOrUpdateFileContents({
+                    owner, repo, path: op.path,
+                    message: `✅ Enhanced: [${op.path}] - ${op.changelog} ${SKIP_TAG}`,
+                    content: Buffer.from(newContent).toString('base64'),
+                    sha: fData.sha,
+                    branch: process.env.GITHUB_HEAD_REF || 'main'
+                  });
+                  addToTelegramBuffer(`🎯 *Managed:* \`${op.path}\` updated.\n📝 *Changelog:* ${op.changelog}`);
+                  auditSummary.updated.push(op.path);
+                }
               }
-
-          const labelRegex = new RegExp("\\");
-          const labelMatch = aiRes.match(labelRegex);
-          if (labelMatch && issueNumber) {
-            const labelString = labelMatch.at(1);
-            const labels = labelString.split(',').map(l => l.trim().toLowerCase());
-            await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
+            }
+            
+            // Penambahan label GitHub langsung dari Object JSON tanpa regex yang rumit
+            if (aiResJson.labels && Array.isArray(aiResJson.labels) && issueNumber) {
+              const labels = aiResJson.labels.map(l => l.trim().toLowerCase());
+              try {
+                await octokit.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
+              } catch (labelErr) {
+                console.error("Gagal menambahkan labels:", labelErr.message);
+              }
+            }
           }
           auditSummary.success++;
-        } catch (err) { auditSummary.failed.push(`${file.path}: ${err.message}`); }
+        } catch (err) { 
+          auditSummary.failed.push(`${file.path}: ${err.message}`); 
+        }
       }
       await flushTelegram();
       if (i + BATCH_SIZE < allFiles.length) await new Promise(r => setTimeout(r, 2000));
@@ -329,14 +344,17 @@ export async function main() {
         temperature: 0.2
       });
       
-      // Kirim jawaban chat ke Telegram
-      const chatResponse = aiRes.split("###---AUTONOMOUS_FILE_START---###").at(0).split("###---SHELL_EXEC_START---###").at(0).trim();
-      if (chatResponse && chatResponse!== "PASS") {
+      const rawChatRes = response.choices.at(0).message.content;
+
+      // Memisahkan teks jawaban tanpa mengikutsertakan blok kode update file/shell
+      const chatResponse = rawChatRes.split("###---AUTONOMOUS_FILE_START---###").at(0).split("###---SHELL_EXEC_START---###").at(0).trim();
+      
+      if (chatResponse && chatResponse !== "PASS") {
         addToTelegramBuffer(`🤖 *Oracle Response:*\n${chatResponse}`);
       }
 
-      // Jika AI dalam mode chat memutuskan untuk mengubah file, tetap eksekusi
-      await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
+      // Jika AI dalam mode chat memutuskan untuk mengubah file, lempar ke updater
+      await applyAutonomousUpdates(rawChatRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
     } catch (err) {
       addToTelegramBuffer(`⚠️ *Chat Error:* ${err.message}`);
@@ -345,9 +363,10 @@ export async function main() {
   }
 }
 
+// Menjalankan fungsi utama dan menangkap error fatal agar tidak merusak antrean
 main().catch(err => {
   console.error("Critical Error:", err);
   telegramBuffer += `\n⚠️ *System Error:* ${err.message}`;
   flushTelegram();
 });
-      
+              
