@@ -43,7 +43,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install Dependencies
         run: npm install openai @octokit/rest axios && npm cache clean --force
@@ -51,7 +51,7 @@ jobs:
       - name: Run Engine
         env:
           # PERBAIKAN: Menggunakan GITHUB_TOKEN agar API AI punya izin penuh
-          GITHU8_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHU8_TOKEN: ${{ secrets.GITHU8_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           MANUAL_CMD: ${{ github.event.inputs.manual_command }}
