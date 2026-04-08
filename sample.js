@@ -205,13 +205,27 @@ export async function main() {
     PROTOKOL INTERVENSI (SYSTEMATIC AUDIT & DEEP DIRECTORY):
     - Anda wajib mengenali dan mengolah SEMUA jenis format file di GitHub (.js,.sh,.yml,.json,.md,.env,.py,.c,.cpp,.go,.rs,.dockerfile,.sql, dll).
     - Anda memiliki kesadaran penuh terhadap lokasi file baik di Root maupun di dalam folder/sub-folder berturut-turut lebih ke dalam lagi.
-    - SURGICAL PRECISION: Perbaiki/Ganti/Hapus hanya bagian yang bermasalah saja.
+    - SURGICAL PRECISION: Perbaiki/Ganti/Hapus hanya bagian yang bermasalah saja.Untuk mencegah kode terpotong (token limit), Anda TIDAK BOLEH menulis ulang seluruh isi file. Anda HANYA BOLEH memberikan teks yang harus dicari (search) dan teks penggantinya (replace).
     - PRESERVASI: Dilarang keras menghapus kode lama yang sudah berfungsi dengan baik.
     - MODULARITAS: Buat file/folder/sub-folder baru jika diperlukan untuk optimasi, estetika, dan mencegah bentrokan kode.
     - ANTI-TEBAKAN: JANGAN MENEBAK. Anda menerima isi file satu per satu untuk memastikan audit faktual.
     - FILE EVOLUTION: Jika menemukan file yang dianggap tidak berguna, kosong, atau redundan, JANGAN DIHAPUS. Ubah file tersebut menjadi modul yang memiliki kemampuan atau fungsi yang berguna bagi efisiensi ekosistem proyek ini.
-
-    ATURAN OUTPUT (WAJIB):
+    
+    ATURAN OUTPUT (WAJIB JSON STRICT):
+    Anda WAJIB memberikan respons HANYA dalam format JSON berikut. Jangan ada teks di luar JSON.
+    {
+      "status": "UPDATE" atau "PASS",
+      "reasoning": "Jelaskan status masalah teknis secara detail dan fakta data",
+      "labels": ["nama_label_1", "nama_label_2"],
+      "operations": [
+        {
+          "path": "path/file.ext",
+          "changelog": "Penjelasan perbaikan singkat",
+          "search": "kode asli yang bermasalah",
+          "replace": "kode baru yang diperbaiki"
+        }
+      ]
+    }`;
     ###---AUTONOMOUS_FILE_START---###
     PATH: path/ke/file.ext
     CHANGELOG: [Penjelasan teknis singkat tentang perbaikan]
@@ -225,7 +239,9 @@ export async function main() {
     ###---SHELL_EXEC_END---###
 
     PENTING: Jika file sudah sempurna, respon hanya dengan "PASS". DILARANG memasukkan kode di baris PATH.`;
-
+  console.log(`🚀 Autonomous Manager Engine Active: ${owner}/${repo}`);
+  addToTelegramBuffer(`🛠️ *Manager Active:* Memproses instruksi: \`${activeInstruction}\``);
+  
   const allFiles = await getAllFilesRecursive(owner, repo);
   const visualTree = generateVisualTree(allFiles);
   auditSummary.total = allFiles.length;
@@ -251,10 +267,33 @@ export async function main() {
             messages: promptMessages,
             model: modelName,
             temperature: 0.1 
-          });
+            response_format: { type: "json_object" } // MEMAKSA AI MENGELUARKAN JSON VALID
+        });
 
-          const aiRes = response.choices.at(0).message.content;
+        const aiRes = JSON.parse(response.choices.at(0).message.content); 
+        const aiRes = response.choices.at(0).message.content;
           await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
+
+        // PENERAPAN SURGICAL PRECISION MELALUI JSON
+        if (aiRes.status === "UPDATE" && aiRes.operations && aiRes.operations.length > 0) {
+          addToTelegramBuffer(`🧠 *Reasoning untuk ${file.path}:* \n${aiRes.reasoning}`);
+          
+          for (const op of aiRes.operations) {
+            if (op.path === file.path) {
+              // Ganti teks spesifik di dalam file
+              const newContent = currentContent.replace(op.search, op.replace);
+              
+              if (newContent!== currentContent) {
+                await octokit.repos.createOrUpdateFileContents({
+                  owner, repo, path: op.path,
+                  message: `✅ Enhanced: [${op.path}] - ${op.changelog} ${SKIP_TAG}`,
+                  content: Buffer.from(newContent).toString('base64'),
+                  sha: fData.sha,
+                  branch: process.env.GITHUB_HEAD_REF || 'main'
+                });
+                addToTelegramBuffer(`🎯 *Managed:* \`${op.path}\` updated.\n📝 *Changelog:* ${op.changelog}`);
+                auditSummary.updated.push(op.path);
+              }
 
           const labelRegex = new RegExp("\\");
           const labelMatch = aiRes.match(labelRegex);
