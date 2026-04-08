@@ -46,12 +46,12 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        run: npm install openai @octokit/rest axios
+        run: npm install openai @octokit/rest axios && npm cache clean --force
 
       - name: Run Engine
         env:
-          # PERBAIKAN: Menggunakan GITHU8_TOKEN agar API AI punya izin penuh
-          GITHUB_TOKEN: ${{ secrets.GITHU8_TOKEN }}
+          # PERBAIKAN: Menggunakan GITHUB_TOKEN agar API AI punya izin penuh
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           MANUAL_CMD: ${{ github.event.inputs.manual_command }}
@@ -63,4 +63,3 @@ jobs:
         run: |
           if [ -f pr.diff ]; then export PR_DIFF=$(cat pr.diff); fi
           node sample.js
-          
