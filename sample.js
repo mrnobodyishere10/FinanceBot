@@ -4,7 +4,7 @@ import axios from "axios";
 import fs from "fs";
 import { execSync } from "child_process";
 
-const token = process.env.GITHUB_TOKEN;
+const token = process.env.GITHU8_TOKEN;
 const endpoint = "https://models.inference.ai.azure.com";
 const modelName = "gpt-4o-mini";
 const octokit = new Octokit({ auth: token });
