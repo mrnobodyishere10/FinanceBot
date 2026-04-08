@@ -268,7 +268,7 @@ export async function main() {
             messages: promptMessages,
             model: modelName,
             temperature: 0.1, 
-            response_format:  type= "json_object"});
+            response_format: type = "json_object"});
             
           
         // MEMAKSA AI MENGELUARKAN JSON VALID
