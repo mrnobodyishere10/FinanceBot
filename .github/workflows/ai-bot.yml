@@ -51,7 +51,7 @@ jobs:
       - name: Run Engine
         env:
           # PERBAIKAN: Menggunakan GITHUB_TOKEN agar API AI punya izin penuh
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHU8_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           MANUAL_CMD: ${{ github.event.inputs.manual_command }}
