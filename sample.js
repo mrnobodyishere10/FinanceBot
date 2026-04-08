@@ -267,7 +267,7 @@ export async function main() {
           const response = await client.chat.completions.create({
             messages: promptMessages,
             model: modelName,
-            temperature: 0.1 
+            temperature: 0.1, 
             response_format: { type: "json_object" }); 
           
         // MEMAKSA AI MENGELUARKAN JSON VALID
