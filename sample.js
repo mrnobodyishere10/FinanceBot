@@ -272,7 +272,7 @@ export async function main() {
             
           
         // MEMAKSA AI MENGELUARKAN JSON VALID
-        const aiRes = JSON.parse(response.choices.at(0).message.content); 
+       const aiRes = JSON.parse(response.choices.at(0).message.content); 
         const aiRes = response.choices.at(0).message.content;
           await applyAutonomousUpdates(aiRes, owner, repo, process.env.GITHUB_HEAD_REF, issueNumber);
 
@@ -328,8 +328,6 @@ export async function main() {
         model: modelName,
         temperature: 0.2
       });
-
-      const aiRes = response.choices.at(0).message.content;
       
       // Kirim jawaban chat ke Telegram
       const chatResponse = aiRes.split("###---AUTONOMOUS_FILE_START---###").at(0).split("###---SHELL_EXEC_START---###").at(0).trim();
