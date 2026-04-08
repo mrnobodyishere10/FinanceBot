@@ -6,6 +6,6 @@
 version: 2
 updates:
   - package-ecosystem: "npm" # Updated to specify the correct package ecosystem
-    directory: "/" # Location of package manifests
+    directory: "/app" # Location of package manifests, adjusted to point to the correct directory
     schedule:
       interval: "weekly"
