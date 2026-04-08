@@ -9,17 +9,27 @@ PROJECT ARCHITECTURE MAP:
   ├─ .env
   ├─ .env.example
   ├─ Dependabot.yml
+  │   ├─ ai-bot.yml
+  │   ├─ codeql.yml
   ├─ .gitignore
   ├─ FinanceBot_full_backend_setup.sh
   ├─ README.md
-  ├─ package.json
-  ├─ sample.js
   ├─ app.js
-  ├─ telegram.js
-  ├─ env.js
-  ├─ example.js
-  ├─ featureFlags.js
-  ├─ secrets.local.js
+  │   ├─ package.json
+  │   ├─ sample.js
+  │       ├─ advisor.js
+  │       ├─ budget.js
+  │       ├─ geminiClient.js
+  │       ├─ habit.js
+  │       ├─ insight.js
+  │       ├─ memory.js
+  │       ├─ prediction.js
+  │       ├─ trainer.js
+  │   ├─ telegram.js
+  │   ├─ env.js
+  │   ├─ example.js
+  │   ├─ featureFlags.js
+  │   ├─ secrets.local.js
   ├─ docker-compose.yml
   ├─ railway.json
   ├─ vercel.json
